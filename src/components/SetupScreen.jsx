@@ -6,7 +6,8 @@ export default function SetupScreen({
   selectedLevel,
   setSelectedLevel,
   onGenerateProblem,
-  onUseMock,
+  onShowHistory,
+  onShowMock,
   isGenerating
 }) {
   return (
@@ -63,11 +64,20 @@ export default function SetupScreen({
           </button>
 
           <button
-            onClick={onUseMock}
+            onClick={onShowHistory}
             disabled={isGenerating}
             className="w-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
           >
-            サンプルで試す（API不要）
+            過去の問題
+          </button>
+        </div>
+
+        <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
+          <button
+            onClick={onShowMock}
+            className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+          >
+            テストモード
           </button>
         </div>
       </div>
