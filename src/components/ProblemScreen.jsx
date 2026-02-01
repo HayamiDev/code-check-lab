@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useMemo } from 'react'
 import hljs from '../lib/highlight'
 import { LANGUAGE_TO_HLJS } from '../constants/languages'
 
@@ -11,16 +11,13 @@ export default function ProblemScreen({
   onBack,
   isEvaluating
 }) {
-  const codeRef = useRef(null)
+  const hljsLang = LANGUAGE_TO_HLJS[selectedLanguage] || selectedLanguage.toLowerCase()
 
-  useEffect(() => {
-    if (codeRef.current) {
-      codeRef.current.removeAttribute('data-highlighted')
-      hljs.highlightElement(codeRef.current)
-    }
-  }, [problem?.code])
-
-  const hljsClass = LANGUAGE_TO_HLJS[selectedLanguage] || selectedLanguage.toLowerCase()
+  const highlightedLines = useMemo(() => {
+    if (!problem?.code) return []
+    const highlighted = hljs.highlight(problem.code, { language: hljsLang })
+    return highlighted.value.split('\n')
+  }, [problem?.code, hljsLang])
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 py-8">
@@ -60,14 +57,25 @@ export default function ProblemScreen({
 
           <div className="mb-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-3">レビュー対象コード</h3>
-            <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm">
-              <code
-                ref={codeRef}
-                className={`language-${hljsClass}`}
-              >
-                {problem.code}
-              </code>
-            </pre>
+            <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto text-sm">
+              <table className="w-full border-collapse">
+                <tbody>
+                  {highlightedLines.map((line, index) => (
+                    <tr key={index} className="hover:bg-gray-200/50 dark:hover:bg-gray-800/50">
+                      <td className="select-none text-right pr-4 pl-4 py-0 text-gray-400 dark:text-gray-600 border-r border-gray-300 dark:border-gray-700 align-top w-1">
+                        {index + 1}
+                      </td>
+                      <td className="pl-4 pr-4 py-0 whitespace-pre font-mono">
+                        <code
+                          className={`language-${hljsLang}`}
+                          dangerouslySetInnerHTML={{ __html: line || '&nbsp;' }}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="mb-6">
