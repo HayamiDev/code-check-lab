@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コードレビュートレーナー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: true,
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const LANGUAGES = [
+            'Kotlin', 'Swift', 'JavaScript', 'TypeScript', 'Python',
+            'Java', 'C#', 'Go', 'Rust', 'PHP', 'Ruby', 'C++'
+        ];
+
+        function App() {
+            const [stage, setStage] = useState('setup'); // 'setup', 'problem', 'result'
+            const [selectedLanguage, setSelectedLanguage] = useState('Kotlin');
+            const [selectedLevel, setSelectedLevel] = useState(5);
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [problem, setProblem] = useState(null);
+            const [userAnswer, setUserAnswer] = useState('');
+            const [isEvaluating, setIsEvaluating] = useState(false);
+            const [evaluationResult, setEvaluationResult] = useState(null);
+            const codeRef = useRef(null);
+
+            // コードのハイライト適用
+            useEffect(() => {
+                if (stage === 'problem' && codeRef.current) {
+                    // 前回適用されたハイライトをクリアするために属性をリセット
+                    codeRef.current.removeAttribute('data-highlighted');
+                    hljs.highlightElement(codeRef.current);
+                }
+            }, [stage, problem?.code]);
+
+            // 問題を生成
+            const generateProblem = async () => {
+                setIsGenerating(true);
+                try {
+                    // Cloudflare Worker APIエンドポイント（デプロイ後に変更してください）
+                    const API_ENDPOINT = 'https://code-review-trainer-api.wakanatsuki787.workers.dev/';
+
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: 'claude-sonnet-4-20250514',
+                            max_tokens: 4000,
+                            messages: [{
+                                role: 'user',
+                                content: `あなたはコードレビューの専門家です。以下の条件でコードレビュー練習問題を生成してください。
+
+言語: ${selectedLanguage}
+レベル: ${selectedLevel}/10 (10が最高難度)
+
+以下のJSON形式で回答してください:
+{
+  "prerequisite": "レビュー対象コードの前提条件（システム概要など。必要な場合のみ記載）",
+  "code": "レビュー対象のコード",
+  "level": ${selectedLevel},
+  "requiredIssuesCount": 3,
+  "requiredIssues": [
+    {
+      "summary": "指摘の概要",
+      "detail": "詳細な解説"
+    }
+  ],
+  "optionalIssues": [
+    {
+      "summary": "任意指摘の概要",
+      "detail": "詳細な解説"
+    }
+  ]
+}
+
+注意点:
+- レベルに応じて問題の難易度を調整してください
+- 必須指摘は2〜4個程度
+- 任意指摘は1〜3個程度
+- 実際のコードレビューで遭遇しそうな現実的な問題を含めてください
+- セキュリティ、パフォーマンス、保守性、可読性など多様な観点を含めてください`
+                            }]
+                        })
+                    });
+
+                    const data = await response.json();
+                    const content = data.content.find(c => c.type === 'text')?.text || '';
+
+                    // JSONを抽出
+                    const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const problemData = JSON.parse(jsonMatch[0]);
+                        setProblem(problemData);
+                        setStage('problem');
+                        setUserAnswer('');
+                        setEvaluationResult(null);
+                    }
+                } catch (error) {
+                    alert('問題の生成に失敗しました: ' + error.message);
+                } finally {
+                    setIsGenerating(false);
+                }
+            };
+
+            // 回答を評価
+            const evaluateAnswer = async () => {
+                if (!userAnswer.trim()) {
+                    alert('回答を入力してください');
+                    return;
+                }
+
+                setIsEvaluating(true);
+                try {
+                    // Cloudflare Worker APIエンドポイント（デプロイ後に変更してください）
+                    const API_ENDPOINT = 'https://code-review-trainer-api.wakanatsuki787.workers.dev/';
+
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: 'claude-sonnet-4-20250514',
+                            max_tokens: 3000,
+                            messages: [{
+                                role: 'user',
+                                content: `以下のコードレビュー問題に対するユーザーの回答を採点してください。
+
+【レビュー対象コード】
+${problem.code}
+
+【必須指摘事項】
+${problem.requiredIssues.map((issue, i) => `${i + 1}. ${issue.summary}\n   ${issue.detail}`).join('\n\n')}
+
+【ユーザーの回答】
+${userAnswer}
+
+各必須指摘に対して0〜10点で採点し、以下のJSON形式で回答してください:
+{
+  "scores": [
+    {
+      "issueIndex": 0,
+      "score": 8,
+      "feedback": "この指摘についての評価コメント"
+    }
+  ],
+  "totalScore": 75,
+  "overallFeedback": "全体的な講評"
+}
+
+採点基準:
+- 指摘の意図が正確に理解できている: 10点
+- 指摘の意図は理解できているが説明不足: 6〜8点
+- 指摘の方向性は合っているが不十分: 3〜5点
+- 指摘できていない、または的外れ: 0〜2点
+- totalScoreは全指摘の平均点（0〜100のパーセンテージ）`
+                            }]
+                        })
+                    });
+
+                    const data = await response.json();
+                    const content = data.content.find(c => c.type === 'text')?.text || '';
+
+                    const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const result = JSON.parse(jsonMatch[0]);
+                        setEvaluationResult(result);
+                        setStage('result');
+                    }
+                } catch (error) {
+                    alert('評価に失敗しました: ' + error.message);
+                } finally {
+                    setIsEvaluating(false);
+                }
+            };
+
+            // セットアップ画面
+            if (stage === 'setup') {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">コードレビュートレーナー</h1>
+                            <p className="text-gray-600 mb-8">AIが生成する問題でコードレビュー力を鍛えましょう</p>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        プログラミング言語
+                                    </label>
+                                    <select
+                                        value={selectedLanguage}
+                                        onChange={(e) => setSelectedLanguage(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    >
+                                        {LANGUAGES.map(lang => (
+                                            <option key={lang} value={lang}>{lang}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        難易度レベル: {selectedLevel}/10
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="10"
+                                        value={selectedLevel}
+                                        onChange={(e) => setSelectedLevel(Number(e.target.value))}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                    />
+                                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>初級</span>
+                                        <span>中級</span>
+                                        <span>上級</span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={generateProblem}
+                                    disabled={isGenerating}
+                                    className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    {isGenerating ? '問題を生成中...' : '問題を生成する'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 問題画面
+            if (stage === 'problem') {
+                return (
+                    <div className="min-h-screen bg-gray-50 p-4 py-8">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="bg-white rounded-2xl shadow-xl p-8">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900">コードレビュー問題</h1>
+                                        <div className="flex gap-3 mt-2">
+                                            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                                                {selectedLanguage}
+                                            </span>
+                                            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                                                レベル {problem.level}/10
+                                            </span>
+                                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                                必須指摘: {problem.requiredIssuesCount}個
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setStage('setup')}
+                                        className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium"
+                                    >
+                                        ← 設定に戻る
+                                    </button>
+                                </div>
+
+                                {problem.prerequisite && (
+                                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                        <h3 className="font-semibold text-gray-900 mb-2">前提条件</h3>
+                                        <p className="text-gray-700 text-sm">{problem.prerequisite}</p>
+                                    </div>
+                                )}
+
+                                <div className="mb-6">
+                                    <h3 className="font-semibold text-gray-900 mb-3">レビュー対象コード</h3>
+                                    <pre className="bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm">
+                                        <code
+                                            ref={codeRef}
+                                            className={`language-${selectedLanguage.toLowerCase() === 'c#' ? 'csharp' : selectedLanguage.toLowerCase()}`}
+                                        >
+                                            {problem.code}
+                                        </code>
+                                    </pre>
+                                </div>
+
+                                <div className="mb-6">
+                                    <h3 className="font-semibold text-gray-900 mb-2">あなたの指摘を記入してください</h3>
+                                    <p className="text-sm text-gray-600 mb-3">
+                                        このコードの問題点を指摘してください。必須指摘は{problem.requiredIssuesCount}個です。
+                                    </p>
+                                    <textarea
+                                        value={userAnswer}
+                                        onChange={(e) => setUserAnswer(e.target.value)}
+                                        className="w-full h-64 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                        placeholder="コードレビューの指摘を自由に記述してください&#10;&#10;例:&#10;1. 変数名が不明瞭です。`data`ではなく具体的な名前にすべきです。&#10;2. エラーハンドリングが不足しています。..."
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={evaluateAnswer}
+                                    disabled={isEvaluating || !userAnswer.trim()}
+                                    className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    {isEvaluating ? '評価中...' : '回答を送信して採点する'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 結果画面
+            if (stage === 'result') {
+                return (
+                    <div className="min-h-screen bg-gray-50 p-4 py-8">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="bg-white rounded-2xl shadow-xl p-8">
+                                <h1 className="text-2xl font-bold text-gray-900 mb-6">採点結果</h1>
+
+                                <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+                                    <div className="text-center">
+                                        <div className="text-5xl font-bold text-gray-900 mb-2">
+                                            {evaluationResult.totalScore}点
+                                        </div>
+                                        <div className="text-gray-600">必須指摘正答率</div>
+                                    </div>
+                                </div>
+
+                                <div className="mb-8">
+                                    <h2 className="text-xl font-bold text-gray-900 mb-4">必須指摘</h2>
+                                    <div className="space-y-4">
+                                        {problem.requiredIssues.map((issue, index) => {
+                                            const scoreData = evaluationResult.scores.find(s => s.issueIndex === index);
+                                            return (
+                                                <details key={index} className="border border-gray-200 rounded-lg">
+                                                    <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 font-medium flex items-center justify-between">
+                                                        <span>{index + 1}. {issue.summary}</span>
+                                                        {scoreData && (
+                                                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${scoreData.score >= 8 ? 'bg-green-100 text-green-800' :
+                                                                scoreData.score >= 5 ? 'bg-yellow-100 text-yellow-800' :
+                                                                    'bg-red-100 text-red-800'
+                                                                }`}>
+                                                                {scoreData.score}/10点
+                                                            </span>
+                                                        )}
+                                                    </summary>
+                                                    <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                                                        <div className="mb-3">
+                                                            <h4 className="font-semibold text-sm text-gray-700 mb-1">解説</h4>
+                                                            <p className="text-sm text-gray-600">{issue.detail}</p>
+                                                        </div>
+                                                        {scoreData && (
+                                                            <div>
+                                                                <h4 className="font-semibold text-sm text-gray-700 mb-1">あなたの回答への評価</h4>
+                                                                <p className="text-sm text-gray-600">{scoreData.feedback}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </details>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {problem.optionalIssues && problem.optionalIssues.length > 0 && (
+                                    <div className="mb-8">
+                                        <h2 className="text-xl font-bold text-gray-900 mb-4">任意指摘</h2>
+                                        <p className="text-sm text-gray-600 mb-4">必須ではありませんが、指摘できるとより良いポイントです</p>
+                                        <div className="space-y-4">
+                                            {problem.optionalIssues.map((issue, index) => (
+                                                <details key={index} className="border border-gray-200 rounded-lg">
+                                                    <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 font-medium">
+                                                        {index + 1}. {issue.summary}
+                                                    </summary>
+                                                    <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                                                        <p className="text-sm text-gray-600">{issue.detail}</p>
+                                                    </div>
+                                                </details>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <h3 className="font-semibold text-gray-900 mb-2">総評</h3>
+                                    <p className="text-gray-700 text-sm">{evaluationResult.overallFeedback}</p>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={generateProblem}
+                                        disabled={isGenerating}
+                                        className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+                                    >
+                                        {isGenerating ? '生成中...' : '次の問題へ（同じ設定）'}
+                                    </button>
+                                    <button
+                                        onClick={() => setStage('setup')}
+                                        className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                                    >
+                                        設定を変更して新しい問題
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>
