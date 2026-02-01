@@ -1,33 +1,6 @@
 import { useEffect, useRef } from 'react'
-import hljs from 'highlight.js/lib/core'
-
-// 必要な言語のみインポート
-import kotlin from 'highlight.js/lib/languages/kotlin'
-import swift from 'highlight.js/lib/languages/swift'
-import javascript from 'highlight.js/lib/languages/javascript'
-import typescript from 'highlight.js/lib/languages/typescript'
-import python from 'highlight.js/lib/languages/python'
-import java from 'highlight.js/lib/languages/java'
-import csharp from 'highlight.js/lib/languages/csharp'
-import go from 'highlight.js/lib/languages/go'
-import rust from 'highlight.js/lib/languages/rust'
-import php from 'highlight.js/lib/languages/php'
-import ruby from 'highlight.js/lib/languages/ruby'
-import cpp from 'highlight.js/lib/languages/cpp'
-
-// 言語を登録
-hljs.registerLanguage('kotlin', kotlin)
-hljs.registerLanguage('swift', swift)
-hljs.registerLanguage('javascript', javascript)
-hljs.registerLanguage('typescript', typescript)
-hljs.registerLanguage('python', python)
-hljs.registerLanguage('java', java)
-hljs.registerLanguage('csharp', csharp)
-hljs.registerLanguage('go', go)
-hljs.registerLanguage('rust', rust)
-hljs.registerLanguage('php', php)
-hljs.registerLanguage('ruby', ruby)
-hljs.registerLanguage('cpp', cpp)
+import hljs from '../lib/highlight'
+import { LANGUAGE_TO_HLJS } from '../constants/languages'
 
 export default function ProblemScreen({
   problem,
@@ -47,10 +20,7 @@ export default function ProblemScreen({
     }
   }, [problem?.code])
 
-  const getLanguageClass = (lang) => {
-    if (lang.toLowerCase() === 'c#') return 'csharp'
-    return lang.toLowerCase()
-  }
+  const hljsClass = LANGUAGE_TO_HLJS[selectedLanguage] || selectedLanguage.toLowerCase()
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 py-8">
@@ -62,13 +32,13 @@ export default function ProblemScreen({
                 コードレビュー問題
               </h1>
               <div className="flex gap-3 mt-2">
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
                   {selectedLanguage}
                 </span>
-                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">
                   レベル {problem.level}/10
                 </span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 rounded-full text-sm font-medium">
                   必須指摘: {problem.requiredIssuesCount}個
                 </span>
               </div>
@@ -93,7 +63,7 @@ export default function ProblemScreen({
             <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm">
               <code
                 ref={codeRef}
-                className={`language-${getLanguageClass(selectedLanguage)}`}
+                className={`language-${hljsClass}`}
               >
                 {problem.code}
               </code>

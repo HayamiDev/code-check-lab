@@ -46,8 +46,13 @@ export async function generateProblem(language, level) {
     })
   })
 
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.error?.message || `APIエラー: ${response.status}`)
+  }
+
   const data = await response.json()
-  const content = data.content.find(c => c.type === 'text')?.text || ''
+  const content = data.content?.find(c => c.type === 'text')?.text || ''
 
   const jsonMatch = content.match(/\{[\s\S]*\}/)
   if (jsonMatch) {
@@ -101,8 +106,13 @@ ${userAnswer}
     })
   })
 
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.error?.message || `APIエラー: ${response.status}`)
+  }
+
   const data = await response.json()
-  const content = data.content.find(c => c.type === 'text')?.text || ''
+  const content = data.content?.find(c => c.type === 'text')?.text || ''
 
   const jsonMatch = content.match(/\{[\s\S]*\}/)
   if (jsonMatch) {
