@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { SetupScreen, ProblemScreen, ResultScreen } from './components'
+import { SetupScreen, ProblemScreen, ResultScreen, LoadingOverlay } from './components'
 import { generateProblem, evaluateAnswer } from './api/claude'
 
 export default function App() {
@@ -45,44 +45,54 @@ export default function App() {
     }
   }
 
-  if (stage === 'setup') {
-    return (
-      <SetupScreen
-        selectedLanguage={selectedLanguage}
-        setSelectedLanguage={setSelectedLanguage}
-        selectedLevel={selectedLevel}
-        setSelectedLevel={setSelectedLevel}
-        onGenerateProblem={handleGenerateProblem}
-        isGenerating={isGenerating}
-      />
-    )
+  const renderScreen = () => {
+    if (stage === 'setup') {
+      return (
+        <SetupScreen
+          selectedLanguage={selectedLanguage}
+          setSelectedLanguage={setSelectedLanguage}
+          selectedLevel={selectedLevel}
+          setSelectedLevel={setSelectedLevel}
+          onGenerateProblem={handleGenerateProblem}
+          isGenerating={isGenerating}
+        />
+      )
+    }
+
+    if (stage === 'problem') {
+      return (
+        <ProblemScreen
+          problem={problem}
+          selectedLanguage={selectedLanguage}
+          userAnswer={userAnswer}
+          setUserAnswer={setUserAnswer}
+          onEvaluate={handleEvaluateAnswer}
+          onBack={() => setStage('setup')}
+          isEvaluating={isEvaluating}
+        />
+      )
+    }
+
+    if (stage === 'result') {
+      return (
+        <ResultScreen
+          problem={problem}
+          evaluationResult={evaluationResult}
+          onNextProblem={handleGenerateProblem}
+          onChangeSettings={() => setStage('setup')}
+          isGenerating={isGenerating}
+        />
+      )
+    }
+
+    return null
   }
 
-  if (stage === 'problem') {
-    return (
-      <ProblemScreen
-        problem={problem}
-        selectedLanguage={selectedLanguage}
-        userAnswer={userAnswer}
-        setUserAnswer={setUserAnswer}
-        onEvaluate={handleEvaluateAnswer}
-        onBack={() => setStage('setup')}
-        isEvaluating={isEvaluating}
-      />
-    )
-  }
-
-  if (stage === 'result') {
-    return (
-      <ResultScreen
-        problem={problem}
-        evaluationResult={evaluationResult}
-        onNextProblem={handleGenerateProblem}
-        onChangeSettings={() => setStage('setup')}
-        isGenerating={isGenerating}
-      />
-    )
-  }
-
-  return null
+  return (
+    <>
+      {renderScreen()}
+      {isGenerating && <LoadingOverlay message="問題を生成中..." />}
+      {isEvaluating && <LoadingOverlay message="回答を評価中..." />}
+    </>
+  )
 }
