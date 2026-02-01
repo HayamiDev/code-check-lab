@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ライトモード用のhighlight.jsスタイル */
+@import 'highlight.js/styles/github.css' (prefers-color-scheme: light);
+
+/* ダークモード用のhighlight.jsスタイル */
+@import 'highlight.js/styles/github-dark.css' (prefers-color-scheme: dark);
