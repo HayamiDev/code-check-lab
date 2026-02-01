@@ -6,6 +6,7 @@ export default function SetupScreen({
   selectedLevel,
   setSelectedLevel,
   onGenerateProblem,
+  onUseMock,
   isGenerating
 }) {
   return (
@@ -59,6 +60,14 @@ export default function SetupScreen({
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isGenerating ? '問題を生成中...' : '問題を生成する'}
+          </button>
+
+          <button
+            onClick={onUseMock}
+            disabled={isGenerating}
+            className="w-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+          >
+            サンプルで試す（API不要）
           </button>
         </div>
       </div>

@@ -1,8 +1,11 @@
 import { useState } from 'react'
-import { SetupScreen, ProblemScreen, ResultScreen, LoadingOverlay } from './components'
+import { SetupScreen, ProblemScreen, ResultScreen, LoadingOverlay, ThemeSelector } from './components'
 import { generateProblem, evaluateAnswer } from './api/claude'
+import { MOCK_PROBLEM, MOCK_EVALUATION } from './constants/mockData'
+import { useTheme } from './hooks/useTheme'
 
 export default function App() {
+  const [theme, setTheme] = useTheme()
   const [stage, setStage] = useState('setup') // 'setup', 'problem', 'result'
   const [selectedLanguage, setSelectedLanguage] = useState('Kotlin')
   const [selectedLevel, setSelectedLevel] = useState(5)
@@ -11,9 +14,19 @@ export default function App() {
   const [userAnswer, setUserAnswer] = useState('')
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [evaluationResult, setEvaluationResult] = useState(null)
+  const [isMockMode, setIsMockMode] = useState(false)
+
+  const handleUseMock = () => {
+    setProblem(MOCK_PROBLEM)
+    setStage('problem')
+    setUserAnswer('')
+    setEvaluationResult(null)
+    setIsMockMode(true)
+  }
 
   const handleGenerateProblem = async () => {
     setIsGenerating(true)
+    setIsMockMode(false)
     try {
       const problemData = await generateProblem(selectedLanguage, selectedLevel)
       setProblem(problemData)
@@ -30,6 +43,15 @@ export default function App() {
   const handleEvaluateAnswer = async () => {
     if (!userAnswer.trim()) {
       alert('回答を入力してください')
+      return
+    }
+
+    if (isMockMode) {
+      setIsEvaluating(true)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setEvaluationResult(MOCK_EVALUATION)
+      setStage('result')
+      setIsEvaluating(false)
       return
     }
 
@@ -54,6 +76,7 @@ export default function App() {
           selectedLevel={selectedLevel}
           setSelectedLevel={setSelectedLevel}
           onGenerateProblem={handleGenerateProblem}
+          onUseMock={handleUseMock}
           isGenerating={isGenerating}
         />
       )
@@ -90,6 +113,7 @@ export default function App() {
 
   return (
     <>
+      <ThemeSelector theme={theme} setTheme={setTheme} />
       {renderScreen()}
       {isGenerating && <LoadingOverlay message="問題を生成中..." />}
       {isEvaluating && <LoadingOverlay message="回答を評価中..." />}

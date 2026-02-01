@@ -11,7 +11,9 @@ export default function ProblemScreen({
   onBack,
   isEvaluating
 }) {
-  const hljsLang = LANGUAGE_TO_HLJS[selectedLanguage] || selectedLanguage.toLowerCase()
+  // モックデータの場合はproblem.languageを使用
+  const displayLanguage = problem.language || selectedLanguage
+  const hljsLang = LANGUAGE_TO_HLJS[displayLanguage] || displayLanguage.toLowerCase()
 
   const highlightedLines = useMemo(() => {
     if (!problem?.code) return []
@@ -30,7 +32,7 @@ export default function ProblemScreen({
               </h1>
               <div className="flex gap-3 mt-2">
                 <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
-                  {selectedLanguage}
+                  {displayLanguage}
                 </span>
                 <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">
                   レベル {problem.level}/10
@@ -65,7 +67,7 @@ export default function ProblemScreen({
                       <td className="select-none text-right pr-4 pl-4 py-0 text-gray-400 dark:text-gray-600 border-r border-gray-300 dark:border-gray-700 align-top w-1">
                         {index + 1}
                       </td>
-                      <td className="pl-4 pr-4 py-0 whitespace-pre font-mono">
+                      <td className="pl-4 pr-4 py-0 whitespace-pre font-mono text-gray-900 dark:text-gray-100">
                         <code
                           className={`language-${hljsLang}`}
                           dangerouslySetInnerHTML={{ __html: line || '&nbsp;' }}
