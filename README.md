@@ -56,3 +56,30 @@ npm run preview
 ```
 
 ビルド成果物をローカルで確認できる
+
+### API設定（ローカル実行時）
+
+本番環境のAPIはGitHub Pagesからのリクエストのみ受け付けるため、ローカル実行時は`src/api/claude.js`を以下のように修正してください。
+
+```javascript
+// 変更前
+const API_ENDPOINT = 'https://code-review-trainer-api.wakanatsuki787.workers.dev/'
+
+// 変更後
+const API_ENDPOINT = 'https://api.anthropic.com/v1/messages'
+```
+
+また、各`fetch`呼び出しのヘッダーにAPIキーを追加してください。
+
+```javascript
+headers: {
+  'Content-Type': 'application/json',
+  'x-api-key': 'YOUR_ANTHROPIC_API_KEY',  // 追加
+  'anthropic-version': '2023-06-01',       // 追加
+  'anthropic-dangerous-direct-browser-access': 'true',  // 追加
+},
+```
+
+APIキーは[Anthropic Console](https://console.anthropic.com/)から取得できます。
+
+**注意**: APIキーをコミットしないでください。
