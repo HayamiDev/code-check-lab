@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'media',
             corePlugins: {
                 preflight: true,
             }
@@ -16,11 +17,12 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -198,19 +200,19 @@ ${userAnswer}
             if (stage === 'setup') {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">コードレビュートレーナー</h1>
-                            <p className="text-gray-600 mb-8">AIが生成する問題でコードレビュー力を鍛えましょう</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-2xl w-full">
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">コードレビュートレーナー</h1>
+                            <p className="text-gray-600 dark:text-gray-300 mb-8">AIが生成する問題でコードレビュー力を鍛えましょう</p>
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         プログラミング言語
                                     </label>
                                     <select
                                         value={selectedLanguage}
                                         onChange={(e) => setSelectedLanguage(e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                     >
                                         {LANGUAGES.map(lang => (
                                             <option key={lang} value={lang}>{lang}</option>
@@ -219,7 +221,7 @@ ${userAnswer}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         難易度レベル: {selectedLevel}/10
                                     </label>
                                     <input
@@ -228,9 +230,9 @@ ${userAnswer}
                                         max="10"
                                         value={selectedLevel}
                                         onChange={(e) => setSelectedLevel(Number(e.target.value))}
-                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                        className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                     />
-                                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                                         <span>初級</span>
                                         <span>中級</span>
                                         <span>上級</span>
@@ -253,12 +255,12 @@ ${userAnswer}
             // 問題画面
             if (stage === 'problem') {
                 return (
-                    <div className="min-h-screen bg-gray-50 p-4 py-8">
+                    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 py-8">
                         <div className="max-w-5xl mx-auto">
-                            <div className="bg-white rounded-2xl shadow-xl p-8">
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
                                 <div className="flex items-center justify-between mb-6">
                                     <div>
-                                        <h1 className="text-2xl font-bold text-gray-900">コードレビュー問題</h1>
+                                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">コードレビュー問題</h1>
                                         <div className="flex gap-3 mt-2">
                                             <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                                                 {selectedLanguage}
@@ -273,22 +275,22 @@ ${userAnswer}
                                     </div>
                                     <button
                                         onClick={() => setStage('setup')}
-                                        className="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium"
+                                        className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium"
                                     >
                                         ← 設定に戻る
                                     </button>
                                 </div>
 
                                 {problem.prerequisite && (
-                                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                        <h3 className="font-semibold text-gray-900 mb-2">前提条件</h3>
-                                        <p className="text-gray-700 text-sm">{problem.prerequisite}</p>
+                                    <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+                                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">前提条件</h3>
+                                        <p className="text-gray-700 dark:text-gray-300 text-sm">{problem.prerequisite}</p>
                                     </div>
                                 )}
 
                                 <div className="mb-6">
-                                    <h3 className="font-semibold text-gray-900 mb-3">レビュー対象コード</h3>
-                                    <pre className="bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm">
+                                    <h3 className="font-semibold text-gray-900 dark:text-white mb-3">レビュー対象コード</h3>
+                                    <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm">
                                         <code
                                             ref={codeRef}
                                             className={`language-${selectedLanguage.toLowerCase() === 'c#' ? 'csharp' : selectedLanguage.toLowerCase()}`}
@@ -299,14 +301,14 @@ ${userAnswer}
                                 </div>
 
                                 <div className="mb-6">
-                                    <h3 className="font-semibold text-gray-900 mb-2">あなたの指摘を記入してください</h3>
-                                    <p className="text-sm text-gray-600 mb-3">
+                                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">あなたの指摘を記入してください</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                                         このコードの問題点を指摘してください。必須指摘は{problem.requiredIssuesCount}個です。
                                     </p>
                                     <textarea
                                         value={userAnswer}
                                         onChange={(e) => setUserAnswer(e.target.value)}
-                                        className="w-full h-64 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                        className="w-full h-64 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                                         placeholder="コードレビューの指摘を自由に記述してください&#10;&#10;例:&#10;1. 変数名が不明瞭です。`data`ではなく具体的な名前にすべきです。&#10;2. エラーハンドリングが不足しています。..."
                                     />
                                 </div>
@@ -327,47 +329,47 @@ ${userAnswer}
             // 結果画面
             if (stage === 'result') {
                 return (
-                    <div className="min-h-screen bg-gray-50 p-4 py-8">
+                    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 py-8">
                         <div className="max-w-5xl mx-auto">
-                            <div className="bg-white rounded-2xl shadow-xl p-8">
-                                <h1 className="text-2xl font-bold text-gray-900 mb-6">採点結果</h1>
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">採点結果</h1>
 
-                                <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+                                <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl">
                                     <div className="text-center">
-                                        <div className="text-5xl font-bold text-gray-900 mb-2">
+                                        <div className="text-5xl font-bold text-gray-900 dark:text-white mb-2">
                                             {evaluationResult.totalScore}点
                                         </div>
-                                        <div className="text-gray-600">必須指摘正答率</div>
+                                        <div className="text-gray-600 dark:text-gray-300">必須指摘正答率</div>
                                     </div>
                                 </div>
 
                                 <div className="mb-8">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-4">必須指摘</h2>
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">必須指摘</h2>
                                     <div className="space-y-4">
                                         {problem.requiredIssues.map((issue, index) => {
                                             const scoreData = evaluationResult.scores.find(s => s.issueIndex === index);
                                             return (
-                                                <details key={index} className="border border-gray-200 rounded-lg">
-                                                    <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 font-medium flex items-center justify-between">
+                                                <details key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg">
+                                                    <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 font-medium flex items-center justify-between text-gray-900 dark:text-white">
                                                         <span>{index + 1}. {issue.summary}</span>
                                                         {scoreData && (
-                                                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${scoreData.score >= 8 ? 'bg-green-100 text-green-800' :
-                                                                scoreData.score >= 5 ? 'bg-yellow-100 text-yellow-800' :
-                                                                    'bg-red-100 text-red-800'
+                                                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${scoreData.score >= 8 ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' :
+                                                                scoreData.score >= 5 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300' :
+                                                                    'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'
                                                                 }`}>
                                                                 {scoreData.score}/10点
                                                             </span>
                                                         )}
                                                     </summary>
-                                                    <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                                                    <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600">
                                                         <div className="mb-3">
-                                                            <h4 className="font-semibold text-sm text-gray-700 mb-1">解説</h4>
-                                                            <p className="text-sm text-gray-600">{issue.detail}</p>
+                                                            <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-1">解説</h4>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">{issue.detail}</p>
                                                         </div>
                                                         {scoreData && (
                                                             <div>
-                                                                <h4 className="font-semibold text-sm text-gray-700 mb-1">あなたの回答への評価</h4>
-                                                                <p className="text-sm text-gray-600">{scoreData.feedback}</p>
+                                                                <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-1">あなたの回答への評価</h4>
+                                                                <p className="text-sm text-gray-600 dark:text-gray-400">{scoreData.feedback}</p>
                                                             </div>
                                                         )}
                                                     </div>
@@ -379,16 +381,16 @@ ${userAnswer}
 
                                 {problem.optionalIssues && problem.optionalIssues.length > 0 && (
                                     <div className="mb-8">
-                                        <h2 className="text-xl font-bold text-gray-900 mb-4">任意指摘</h2>
-                                        <p className="text-sm text-gray-600 mb-4">必須ではありませんが、指摘できるとより良いポイントです</p>
+                                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">任意指摘</h2>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">必須ではありませんが、指摘できるとより良いポイントです</p>
                                         <div className="space-y-4">
                                             {problem.optionalIssues.map((issue, index) => (
-                                                <details key={index} className="border border-gray-200 rounded-lg">
-                                                    <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 font-medium">
+                                                <details key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg">
+                                                    <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-gray-900 dark:text-white">
                                                         {index + 1}. {issue.summary}
                                                     </summary>
-                                                    <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
-                                                        <p className="text-sm text-gray-600">{issue.detail}</p>
+                                                    <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400">{issue.detail}</p>
                                                     </div>
                                                 </details>
                                             ))}
@@ -396,22 +398,22 @@ ${userAnswer}
                                     </div>
                                 )}
 
-                                <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <h3 className="font-semibold text-gray-900 mb-2">総評</h3>
-                                    <p className="text-gray-700 text-sm">{evaluationResult.overallFeedback}</p>
+                                <div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg">
+                                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">総評</h3>
+                                    <p className="text-gray-700 dark:text-gray-300 text-sm">{evaluationResult.overallFeedback}</p>
                                 </div>
 
                                 <div className="flex gap-4">
                                     <button
                                         onClick={generateProblem}
                                         disabled={isGenerating}
-                                        className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+                                        className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600"
                                     >
                                         {isGenerating ? '生成中...' : '次の問題へ（同じ設定）'}
                                     </button>
                                     <button
                                         onClick={() => setStage('setup')}
-                                        className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                                        className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-3 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                                     >
                                         設定を変更して新しい問題
                                     </button>
