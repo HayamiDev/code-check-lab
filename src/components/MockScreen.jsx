@@ -40,6 +40,71 @@ const MOCK_HISTORY = [
     userAnswer: 'any型を使わないでください',
     evaluationResult: { totalScore: 45, scores: [{ issueIndex: 0, score: 6, feedback: '指摘できている' }, { issueIndex: 1, score: 3, feedback: '見落とし' }], overallFeedback: '改善の余地あり' },
     timestamp: new Date(Date.now() - 172800000).toISOString()
+  },
+  {
+    id: 3,
+    language: 'Python',
+    problem: {
+      level: 5,
+      code: 'password = input("Enter password: ")\nprint(f"Your password is {password}")',
+      requiredIssuesCount: 2,
+      requiredIssues: [
+        { summary: 'パスワードの平文表示', detail: 'パスワードをログに出力している' },
+        { summary: '入力検証なし', detail: 'パスワードの形式チェックがない' }
+      ],
+      optionalIssues: []
+    },
+    userAnswer: 'パスワードを表示するのはセキュリティ上問題です',
+    evaluationResult: { totalScore: 80, scores: [{ issueIndex: 0, score: 9, feedback: '的確な指摘' }, { issueIndex: 1, score: 7, feedback: '良い' }], overallFeedback: '良い回答です' },
+    timestamp: new Date(Date.now() - 259200000).toISOString()
+  },
+  {
+    id: 4,
+    language: 'Kotlin',
+    problem: {
+      level: 4,
+      code: 'fun processData(list: List<String>?) {\n    list!!.forEach { println(it) }\n}',
+      requiredIssuesCount: 1,
+      requiredIssues: [
+        { summary: '強制アンラップ', detail: '!!演算子でNPEの可能性' }
+      ],
+      optionalIssues: []
+    },
+    userAnswer: '!!を使わずにsafeCallを使うべき',
+    evaluationResult: { totalScore: 90, scores: [{ issueIndex: 0, score: 9, feedback: '完璧' }], overallFeedback: '素晴らしい' },
+    timestamp: new Date(Date.now() - 345600000).toISOString()
+  },
+  {
+    id: 5,
+    language: 'Python',
+    problem: {
+      level: 6,
+      code: 'import pickle\ndata = pickle.loads(user_input)',
+      requiredIssuesCount: 1,
+      requiredIssues: [
+        { summary: 'Pickle脆弱性', detail: '信頼できないデータのデシリアライズ' }
+      ],
+      optionalIssues: []
+    },
+    userAnswer: 'pickleは安全ではない',
+    evaluationResult: { totalScore: 55, scores: [{ issueIndex: 0, score: 5, feedback: 'もう少し具体的に' }], overallFeedback: '方向性は正しい' },
+    timestamp: new Date(Date.now() - 432000000).toISOString()
+  },
+  {
+    id: 6,
+    language: 'TypeScript',
+    problem: {
+      level: 5,
+      code: 'document.innerHTML = userInput;',
+      requiredIssuesCount: 1,
+      requiredIssues: [
+        { summary: 'XSS脆弱性', detail: 'ユーザー入力を直接DOMに挿入' }
+      ],
+      optionalIssues: []
+    },
+    userAnswer: 'XSSの脆弱性があります。サニタイズが必要です。',
+    evaluationResult: { totalScore: 85, scores: [{ issueIndex: 0, score: 9, feedback: '正確な指摘' }], overallFeedback: '良い回答' },
+    timestamp: new Date(Date.now() - 518400000).toISOString()
   }
 ]
 

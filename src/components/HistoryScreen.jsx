@@ -2,8 +2,132 @@ import { useState, useMemo } from 'react'
 import { LANGUAGES } from '../constants/languages'
 import { getHistory, deleteFromHistory, getTotalCounts } from '../lib/historyStorage'
 
+function ScoreChart({ data }) {
+  if (data.length < 2) {
+    return (
+      <div className="h-40 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+        グラフ表示には2件以上のデータが必要です
+      </div>
+    )
+  }
+
+  // 古い順にソート（グラフは左から右へ時系列）
+  const sortedData = [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+  const scores = sortedData.map(d => d.evaluationResult.totalScore)
+  const maxScore = 100
+  const minScore = 0
+
+  // 固定20スロット（最大保存件数）で横幅を分割
+  const maxSlots = 20
+  const width = 400
+  const height = 120
+  const paddingLeft = 25
+  const paddingRight = 10
+  const paddingY = 15
+  const graphWidth = width - paddingLeft - paddingRight
+  const graphHeight = height - paddingY * 2
+  const slotWidth = graphWidth / (maxSlots - 1)
+
+  const points = scores.map((score, i) => {
+    const x = paddingLeft + i * slotWidth
+    const y = paddingY + graphHeight - ((score - minScore) / (maxScore - minScore)) * graphHeight
+    return `${x},${y}`
+  }).join(' ')
+
+  const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+
+  return (
+    <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">スコア推移</h3>
+        <span className="text-sm text-gray-500 dark:text-gray-400">平均: {avg}点</span>
+      </div>
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-40" preserveAspectRatio="xMinYMid meet">
+        {/* Y軸グリッドライン */}
+        {[0, 25, 50, 75, 100].map(val => {
+          const y = paddingY + graphHeight - (val / 100) * graphHeight
+          const isGuide = val === 50 || val === 70
+          return (
+            <g key={val}>
+              <line
+                x1={paddingLeft}
+                y1={y}
+                x2={width - paddingRight}
+                y2={y}
+                stroke="currentColor"
+                className={
+                  val === 50
+                    ? "text-yellow-400 dark:text-yellow-400"
+                    : val === 70
+                    ? "text-green-400 dark:text-green-400"
+                    : "text-gray-200 dark:text-gray-500"
+                }
+                strokeWidth={isGuide ? "1" : "0.5"}
+                strokeDasharray={isGuide ? "4,2" : "none"}
+                opacity={isGuide ? 0.7 : 1}
+              />
+              <text
+                x={paddingLeft - 5}
+                y={y + 3}
+                textAnchor="end"
+                fill="currentColor"
+                className="text-gray-500 dark:text-gray-300"
+                fontSize="9"
+              >
+                {val}
+              </text>
+            </g>
+          )
+        })}
+
+        {/* 70点ライン */}
+        <line
+          x1={paddingLeft}
+          y1={paddingY + graphHeight - (70 / 100) * graphHeight}
+          x2={width - paddingRight}
+          y2={paddingY + graphHeight - (70 / 100) * graphHeight}
+          stroke="currentColor"
+          className="text-green-400 dark:text-green-400"
+          strokeWidth="1"
+          strokeDasharray="4,2"
+          opacity="0.7"
+        />
+
+        {/* スコアライン */}
+        <polyline
+          fill="none"
+          stroke="currentColor"
+          className="text-blue-500 dark:text-blue-400"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          points={points}
+        />
+
+        {/* データポイント */}
+        {scores.map((score, i) => {
+          const x = paddingLeft + i * slotWidth
+          const y = paddingY + graphHeight - ((score - minScore) / (maxScore - minScore)) * graphHeight
+          return (
+            <circle
+              key={i}
+              cx={x}
+              cy={y}
+              r="4"
+              fill="currentColor"
+              className="text-blue-600 dark:text-blue-300"
+            />
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
+
 export default function HistoryScreen({ onBack, onSelectProblem, mockData = null }) {
   const [selectedLanguage, setSelectedLanguage] = useState('all')
+  const [sortBy, setSortBy] = useState('date-desc')
+  const [scoreFilter, setScoreFilter] = useState('all')
   const [history, setHistory] = useState(() => mockData ? {} : getHistory())
 
   // モックデータがある場合はそれを使用
@@ -11,16 +135,15 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
   const mockHistory = mockData?.history || null
   const counts = mockData?.counts || getTotalCounts()
 
-  const filteredHistory = useMemo(() => {
-    // モックデータがある場合
+  // 言語でフィルタした基本データ
+  const baseHistory = useMemo(() => {
     if (mockHistory) {
       if (selectedLanguage === 'all') {
-        return [...mockHistory].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        return [...mockHistory]
       }
       return mockHistory.filter(entry => entry.language === selectedLanguage)
     }
 
-    // 通常の履歴
     if (selectedLanguage === 'all') {
       const all = []
       Object.entries(history).forEach(([lang, entries]) => {
@@ -28,13 +151,43 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
           all.push({ ...entry, language: lang })
         })
       })
-      return all.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      return all
     }
     return (history[selectedLanguage] || []).map(entry => ({
       ...entry,
       language: selectedLanguage
     }))
   }, [history, selectedLanguage, mockHistory])
+
+  // スコアフィルタ適用
+  const scoreFilteredHistory = useMemo(() => {
+    if (scoreFilter === 'all') return baseHistory
+    if (scoreFilter === 'high') return baseHistory.filter(e => e.evaluationResult.totalScore >= 70)
+    if (scoreFilter === 'mid') return baseHistory.filter(e => e.evaluationResult.totalScore >= 50 && e.evaluationResult.totalScore < 70)
+    if (scoreFilter === 'low') return baseHistory.filter(e => e.evaluationResult.totalScore < 50)
+    return baseHistory
+  }, [baseHistory, scoreFilter])
+
+  // ソート適用
+  const filteredHistory = useMemo(() => {
+    const sorted = [...scoreFilteredHistory]
+    switch (sortBy) {
+      case 'date-desc':
+        return sorted.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      case 'date-asc':
+        return sorted.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      case 'score-desc':
+        return sorted.sort((a, b) => b.evaluationResult.totalScore - a.evaluationResult.totalScore)
+      case 'score-asc':
+        return sorted.sort((a, b) => a.evaluationResult.totalScore - b.evaluationResult.totalScore)
+      case 'level-desc':
+        return sorted.sort((a, b) => b.problem.level - a.problem.level)
+      case 'level-asc':
+        return sorted.sort((a, b) => a.problem.level - b.problem.level)
+      default:
+        return sorted
+    }
+  }, [scoreFilteredHistory, sortBy])
 
   const handleDelete = (language, id) => {
     if (confirm('この問題を削除しますか？')) {
@@ -68,28 +221,57 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
             </button>
           </div>
 
-          <div className="mb-6 flex items-center justify-between">
+          {/* スコア推移グラフ */}
+          {baseHistory.length > 0 && <ScoreChart data={baseHistory} />}
+
+          {/* フィルター・ソートコントロール */}
+          <div className="mb-6 flex flex-wrap items-center gap-3">
             <select
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
             >
               <option value="all">すべての言語</option>
               {LANGUAGES.map(lang => (
                 <option key={lang} value={lang}>{lang}</option>
               ))}
             </select>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+
+            <select
+              value={scoreFilter}
+              onChange={(e) => setScoreFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+            >
+              <option value="all">すべてのスコア</option>
+              <option value="high">70点以上</option>
+              <option value="mid">50〜69点</option>
+              <option value="low">50点未満</option>
+            </select>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+            >
+              <option value="date-desc">日時（新しい順）</option>
+              <option value="date-asc">日時（古い順）</option>
+              <option value="score-desc">スコア（高い順）</option>
+              <option value="score-asc">スコア（低い順）</option>
+              <option value="level-desc">難易度（高い順）</option>
+              <option value="level-asc">難易度（低い順）</option>
+            </select>
+
+            <div className="ml-auto text-sm text-gray-600 dark:text-gray-400">
               通算: {selectedLanguage === 'all'
                 ? Object.values(counts).reduce((a, b) => a + b, 0)
                 : (counts[selectedLanguage] || 0)
-              }問
+              }問 / 表示: {filteredHistory.length}件
             </div>
           </div>
 
           {filteredHistory.length === 0 ? (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-              保存された問題はありません
+              {baseHistory.length === 0 ? '保存された問題はありません' : '条件に一致する問題はありません'}
             </div>
           ) : (
             <div className="space-y-4">
