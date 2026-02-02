@@ -2,6 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* details要素のアニメーション */
+details summary {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+details[open] summary {
+  margin-bottom: 0;
+}
+
+details > div {
+  animation: slideDown 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* モーダルのフェードインアニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
 /* highlight.js - ライトモード（デフォルト） */
 .hljs {
   color: #24292e;

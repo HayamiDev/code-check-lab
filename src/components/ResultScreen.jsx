@@ -1,3 +1,6 @@
+import { getIssueScoreColorClass, getIssueScoreIcon, getScoreIcon } from '../constants/scoreColors'
+import CodeViewer from './CodeViewer'
+
 export default function ResultScreen({
   problem,
   evaluationResult,
@@ -6,15 +9,7 @@ export default function ResultScreen({
   isGenerating,
   isHistoryView = false
 }) {
-  const getScoreColorClass = (score) => {
-    if (score >= 8) {
-      return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
-    }
-    if (score >= 5) {
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'
-    }
-    return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300'
-  }
+  const displayLanguage = problem.language
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 py-8">
@@ -24,11 +19,19 @@ export default function ResultScreen({
 
           <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl">
             <div className="text-center">
-              <div className="text-5xl font-bold text-gray-900 dark:text-white mb-2">
-                {evaluationResult.totalScore}点
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <span className="text-6xl">{getScoreIcon(evaluationResult.totalScore)}</span>
+                <span className="text-5xl font-bold text-gray-900 dark:text-white">
+                  {evaluationResult.totalScore}点
+                </span>
               </div>
               <div className="text-gray-600 dark:text-gray-300">必須指摘正答率</div>
             </div>
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">レビュー対象コード</h2>
+            <CodeViewer code={problem.code} language={displayLanguage} />
           </div>
 
           <div className="mb-8">
@@ -41,8 +44,9 @@ export default function ResultScreen({
                     <summary className="px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 font-medium flex items-center justify-between text-gray-900 dark:text-white">
                       <span>{index + 1}. {issue.summary}</span>
                       {scoreData && (
-                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${getScoreColorClass(scoreData.score)}`}>
-                          {scoreData.score}/10点
+                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${getIssueScoreColorClass(scoreData.score)} flex items-center gap-1`}>
+                          <span>{getIssueScoreIcon(scoreData.score)}</span>
+                          <span>{scoreData.score}/10点</span>
                         </span>
                       )}
                     </summary>

@@ -1,0 +1,42 @@
+import { useMemo } from 'react'
+import hljs from '../lib/highlight'
+import { LANGUAGE_TO_HLJS } from '../constants/languages'
+
+/**
+ * シンタックスハイライト付きのコードビューアコンポーネント
+ * @param {Object} props
+ * @param {string} props.code - 表示するコード
+ * @param {string} props.language - プログラミング言語
+ * @param {string} props.className - 追加のCSSクラス
+ */
+export default function CodeViewer({ code, language, className = '' }) {
+  const hljsLang = LANGUAGE_TO_HLJS[language] || language?.toLowerCase()
+
+  const highlightedLines = useMemo(() => {
+    if (!code) return []
+    const highlighted = hljs.highlight(code, { language: hljsLang })
+    return highlighted.value.split('\n')
+  }, [code, hljsLang])
+
+  return (
+    <div className={`bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto text-xs sm:text-sm ${className}`}>
+      <table className="w-full border-collapse">
+        <tbody>
+          {highlightedLines.map((line, index) => (
+            <tr key={index} className="hover:bg-gray-200/50 dark:hover:bg-gray-800/50">
+              <td className="sticky left-0 select-none text-right pr-4 pl-4 py-0 text-gray-400 dark:text-gray-600 border-r border-gray-300 dark:border-gray-700 align-top w-1 bg-gray-100 dark:bg-gray-900">
+                {index + 1}
+              </td>
+              <td className="pl-4 pr-4 py-0 whitespace-pre font-mono text-gray-900 dark:text-gray-100">
+                <code
+                  className={`language-${hljsLang}`}
+                  dangerouslySetInnerHTML={{ __html: line || '&nbsp;' }}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}

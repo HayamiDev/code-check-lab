@@ -1,6 +1,5 @@
-import { useMemo } from 'react'
-import hljs from '../lib/highlight'
-import { LANGUAGE_TO_HLJS } from '../constants/languages'
+import { useEffect } from 'react'
+import CodeViewer from './CodeViewer'
 
 export default function ProblemScreen({
   problem,
@@ -13,13 +12,21 @@ export default function ProblemScreen({
 }) {
   // モックデータの場合はproblem.languageを使用
   const displayLanguage = problem.language || selectedLanguage
-  const hljsLang = LANGUAGE_TO_HLJS[displayLanguage] || displayLanguage.toLowerCase()
 
-  const highlightedLines = useMemo(() => {
-    if (!problem?.code) return []
-    const highlighted = hljs.highlight(problem.code, { language: hljsLang })
-    return highlighted.value.split('\n')
-  }, [problem?.code, hljsLang])
+  // キーボードショートカット: Ctrl+Enter で送信
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault()
+        if (!isEvaluating && userAnswer.trim()) {
+          onEvaluate()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isEvaluating, userAnswer, onEvaluate])
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 py-8">
@@ -59,38 +66,26 @@ export default function ProblemScreen({
 
           <div className="mb-6">
             <h3 className="font-semibold text-gray-900 dark:text-white mb-3">レビュー対象コード</h3>
-            <div className="bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto text-sm">
-              <table className="w-full border-collapse">
-                <tbody>
-                  {highlightedLines.map((line, index) => (
-                    <tr key={index} className="hover:bg-gray-200/50 dark:hover:bg-gray-800/50">
-                      <td className="select-none text-right pr-4 pl-4 py-0 text-gray-400 dark:text-gray-600 border-r border-gray-300 dark:border-gray-700 align-top w-1">
-                        {index + 1}
-                      </td>
-                      <td className="pl-4 pr-4 py-0 whitespace-pre font-mono text-gray-900 dark:text-gray-100">
-                        <code
-                          className={`language-${hljsLang}`}
-                          dangerouslySetInnerHTML={{ __html: line || '&nbsp;' }}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <CodeViewer code={problem.code} language={displayLanguage} />
           </div>
 
           <div className="mb-6">
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-              あなたの指摘を記入してください
-            </h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                あなたの指摘を記入してください
+              </h3>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                Ctrl+Enter で送信
+              </span>
+            </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
               このコードの問題点を指摘してください。必須指摘は{problem.requiredIssuesCount}個です。
             </p>
             <textarea
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
-              className="w-full h-64 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+              aria-label="コードレビューの指摘を記入してください"
+              className="w-full min-h-64 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               placeholder={`コードレビューの指摘を自由に記述してください\n\n例:\n1. 変数名が不明瞭です。\`data\`ではなく具体的な名前にすべきです。\n2. エラーハンドリングが不足しています。...`}
             />
           </div>
@@ -98,6 +93,7 @@ export default function ProblemScreen({
           <button
             onClick={onEvaluate}
             disabled={isEvaluating || !userAnswer.trim()}
+            aria-label="回答を送信して採点する"
             className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isEvaluating ? '評価中...' : '回答を送信して採点する'}

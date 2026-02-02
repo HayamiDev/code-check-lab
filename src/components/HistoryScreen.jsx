@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import { LANGUAGES } from '../constants/languages'
 import { getHistory, deleteFromHistory, getTotalCounts } from '../lib/historyStorage'
+import { getScoreColorClass, getScoreIcon } from '../constants/scoreColors'
+import ConfirmDialog from './ConfirmDialog'
 
 function ScoreChart({ data }) {
   if (data.length < 2) {
@@ -42,7 +44,7 @@ function ScoreChart({ data }) {
         <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">スコア推移</h3>
         <span className="text-sm text-gray-500 dark:text-gray-400">平均: {avg}点</span>
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-40" preserveAspectRatio="xMinYMid meet">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-40 mb-3" preserveAspectRatio="xMinYMid meet">
         {/* Y軸グリッドライン */}
         {[0, 25, 50, 75, 100].map(val => {
           const y = paddingY + graphHeight - (val / 100) * graphHeight
@@ -120,6 +122,20 @@ function ScoreChart({ data }) {
           )
         })}
       </svg>
+      <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
+        <div className="flex items-center gap-1">
+          <div className="w-6 h-0.5 bg-green-400"></div>
+          <span className="text-gray-600 dark:text-gray-400">70点ライン（合格）</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-6 h-0.5 bg-yellow-400"></div>
+          <span className="text-gray-600 dark:text-gray-400">50点ライン</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-3 h-3 rounded-full bg-blue-600 dark:bg-blue-300"></div>
+          <span className="text-gray-600 dark:text-gray-400">あなたのスコア</span>
+        </div>
+      </div>
     </div>
   )
 }
@@ -129,6 +145,7 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
   const [sortBy, setSortBy] = useState('date-desc')
   const [scoreFilter, setScoreFilter] = useState('all')
   const [history, setHistory] = useState(() => mockData ? {} : getHistory())
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   // モックデータがある場合はそれを使用
   const isMock = mockData !== null
@@ -189,10 +206,15 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
     }
   }, [scoreFilteredHistory, sortBy])
 
-  const handleDelete = (language, id) => {
-    if (confirm('この問題を削除しますか？')) {
-      deleteFromHistory(language, id)
+  const handleDeleteClick = (language, id) => {
+    setConfirmDelete({ language, id })
+  }
+
+  const handleDeleteConfirm = () => {
+    if (confirmDelete) {
+      deleteFromHistory(confirmDelete.language, confirmDelete.id)
       setHistory(getHistory())
+      setConfirmDelete(null)
     }
   }
 
@@ -225,47 +247,52 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
           {baseHistory.length > 0 && <ScoreChart data={baseHistory} />}
 
           {/* フィルター・ソートコントロール */}
-          <div className="mb-6 flex flex-wrap items-center gap-3">
-            <select
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-            >
-              <option value="all">すべての言語</option>
-              {LANGUAGES.map(lang => (
-                <option key={lang} value={lang}>{lang}</option>
-              ))}
-            </select>
+          <div className="mb-6">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
+              <select
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                aria-label="言語でフィルター"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              >
+                <option value="all">すべての言語</option>
+                {LANGUAGES.map(lang => (
+                  <option key={lang} value={lang}>{lang}</option>
+                ))}
+              </select>
 
-            <select
-              value={scoreFilter}
-              onChange={(e) => setScoreFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-            >
-              <option value="all">すべてのスコア</option>
-              <option value="high">70点以上</option>
-              <option value="mid">50〜69点</option>
-              <option value="low">50点未満</option>
-            </select>
+              <select
+                value={scoreFilter}
+                onChange={(e) => setScoreFilter(e.target.value)}
+                aria-label="スコアでフィルター"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              >
+                <option value="all">すべてのスコア</option>
+                <option value="high">70点以上</option>
+                <option value="mid">50〜69点</option>
+                <option value="low">50点未満</option>
+              </select>
 
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-            >
-              <option value="date-desc">日時（新しい順）</option>
-              <option value="date-asc">日時（古い順）</option>
-              <option value="score-desc">スコア（高い順）</option>
-              <option value="score-asc">スコア（低い順）</option>
-              <option value="level-desc">難易度（高い順）</option>
-              <option value="level-asc">難易度（低い順）</option>
-            </select>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                aria-label="並び替え"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              >
+                <option value="date-desc">日時（新しい順）</option>
+                <option value="date-asc">日時（古い順）</option>
+                <option value="score-desc">スコア（高い順）</option>
+                <option value="score-asc">スコア（低い順）</option>
+                <option value="level-desc">難易度（高い順）</option>
+                <option value="level-asc">難易度（低い順）</option>
+              </select>
 
-            <div className="ml-auto text-sm text-gray-600 dark:text-gray-400">
-              通算: {selectedLanguage === 'all'
-                ? Object.values(counts).reduce((a, b) => a + b, 0)
-                : (counts[selectedLanguage] || 0)
-              }問 / 表示: {filteredHistory.length}件
+              <div className="sm:ml-auto text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
+                通算: {selectedLanguage === 'all'
+                  ? Object.values(counts).reduce((a, b) => a + b, 0)
+                  : (counts[selectedLanguage] || 0)
+                }問 / 表示: {filteredHistory.length}件
+              </div>
             </div>
           </div>
 
@@ -289,14 +316,9 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
                         <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 rounded text-xs font-medium">
                           Lv.{entry.problem.level}
                         </span>
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${
-                          entry.evaluationResult.totalScore >= 70
-                            ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300'
-                            : entry.evaluationResult.totalScore >= 50
-                            ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300'
-                            : 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300'
-                        }`}>
-                          {entry.evaluationResult.totalScore}点
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${getScoreColorClass(entry.evaluationResult.totalScore)} flex items-center gap-1`}>
+                          <span>{getScoreIcon(entry.evaluationResult.totalScore)}</span>
+                          <span>{entry.evaluationResult.totalScore}点</span>
                         </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           {formatDate(entry.timestamp)}
@@ -315,7 +337,7 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
                       </button>
                       {!isMock && (
                         <button
-                          onClick={() => handleDelete(entry.language, entry.id)}
+                          onClick={() => handleDeleteClick(entry.language, entry.id)}
                           className="px-3 py-1 text-sm bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-900 transition-colors"
                         >
                           削除
@@ -329,6 +351,14 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDelete !== null}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={handleDeleteConfirm}
+        title="問題を削除"
+        message="この問題を削除してもよろしいですか？この操作は取り消せません。"
+      />
     </div>
   )
 }
