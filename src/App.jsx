@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SetupScreen, ProblemScreen, ResultScreen, LoadingOverlay, ThemeSelector, HistoryScreen, MockScreen } from './components'
 import { generateProblem, evaluateAnswer } from './api/claude'
 import { MOCK_EVALUATION } from './constants/mockData'
@@ -8,6 +8,17 @@ import { saveToHistory } from './lib/historyStorage'
 export default function App() {
   const [theme, setTheme] = useTheme()
   const [stage, setStage] = useState('setup')
+
+  // 仮想ページビューの計測
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_path: `/${stage}`,
+        page_title: `Stage: ${stage}`,
+        send_to: '%VITE_GA_MEASUREMENT_ID%'
+      });
+    }
+  }, [stage]);
   const [selectedLanguage, setSelectedLanguage] = useState('Kotlin')
   const [selectedLevel, setSelectedLevel] = useState(5)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -23,6 +34,15 @@ export default function App() {
     setIsGenerating(true)
     setIsMockMode(false)
     setIsHistoryView(false)
+
+    // カスタムイベントの計測: 問題生成
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'generate_problem', {
+        language: selectedLanguage,
+        level: selectedLevel
+      });
+    }
+
     try {
       const problemData = await generateProblem(selectedLanguage, selectedLevel)
       setProblem(problemData)
@@ -30,6 +50,12 @@ export default function App() {
       setUserAnswer('')
       setEvaluationResult(null)
     } catch (error) {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'exception', {
+          'description': `Generate Problem Error: ${error.message}`,
+          'fatal': false
+        });
+      }
       alert('問題の生成に失敗しました: ' + error.message)
     } finally {
       setIsGenerating(false)
@@ -61,6 +87,12 @@ export default function App() {
       const language = problem.language || selectedLanguage
       saveToHistory(language, problem, userAnswer, result)
     } catch (error) {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'exception', {
+          'description': `Evaluate Answer Error: ${error.message}`,
+          'fatal': false
+        });
+      }
       alert('評価に失敗しました: ' + error.message)
     } finally {
       setIsEvaluating(false)
