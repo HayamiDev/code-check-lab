@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { SetupScreen, ProblemScreen, ResultScreen, LoadingOverlay, ThemeSelector } from './components'
+import { SetupScreen, ProblemScreen, ResultScreen, LoadingOverlay, ThemeSelector, HistoryScreen, MockScreen } from './components'
 import { generateProblem, evaluateAnswer } from './api/claude'
-import { MOCK_PROBLEM, MOCK_EVALUATION } from './constants/mockData'
+import { MOCK_EVALUATION } from './constants/mockData'
 import { useTheme } from './hooks/useTheme'
+import { saveToHistory } from './lib/historyStorage'
 
 export default function App() {
   const [theme, setTheme] = useTheme()
-  const [stage, setStage] = useState('setup') // 'setup', 'problem', 'result'
+  const [stage, setStage] = useState('setup')
   const [selectedLanguage, setSelectedLanguage] = useState('Kotlin')
   const [selectedLevel, setSelectedLevel] = useState(5)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -15,18 +16,13 @@ export default function App() {
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [evaluationResult, setEvaluationResult] = useState(null)
   const [isMockMode, setIsMockMode] = useState(false)
-
-  const handleUseMock = () => {
-    setProblem(MOCK_PROBLEM)
-    setStage('problem')
-    setUserAnswer('')
-    setEvaluationResult(null)
-    setIsMockMode(true)
-  }
+  const [isHistoryView, setIsHistoryView] = useState(false)
+  const [mockHistoryData, setMockHistoryData] = useState(null)
 
   const handleGenerateProblem = async () => {
     setIsGenerating(true)
     setIsMockMode(false)
+    setIsHistoryView(false)
     try {
       const problemData = await generateProblem(selectedLanguage, selectedLevel)
       setProblem(problemData)
@@ -60,11 +56,52 @@ export default function App() {
       const result = await evaluateAnswer(problem, userAnswer)
       setEvaluationResult(result)
       setStage('result')
+
+      // 履歴に保存（モックモード以外）
+      const language = problem.language || selectedLanguage
+      saveToHistory(language, problem, userAnswer, result)
     } catch (error) {
       alert('評価に失敗しました: ' + error.message)
     } finally {
       setIsEvaluating(false)
     }
+  }
+
+  const handleSelectHistoryProblem = (entry) => {
+    setProblem({ ...entry.problem, language: entry.language })
+    setUserAnswer(entry.userAnswer)
+    setEvaluationResult(entry.evaluationResult)
+    setStage('result')
+    setIsMockMode(false)
+    setIsHistoryView(true)
+  }
+
+  // モック用ハンドラ
+  const handleTestProblem = async (mockProblem, showLoading = false) => {
+    if (showLoading) {
+      setIsGenerating(true)
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      setIsGenerating(false)
+    }
+    setProblem(mockProblem)
+    setStage('problem')
+    setUserAnswer('')
+    setEvaluationResult(null)
+    setIsMockMode(true)
+    setIsHistoryView(false)
+  }
+
+  const handleTestResult = (mockProblem, mockEvaluation) => {
+    setProblem(mockProblem)
+    setEvaluationResult(mockEvaluation)
+    setStage('result')
+    setIsMockMode(true)
+    setIsHistoryView(false)
+  }
+
+  const handleTestHistory = (mockHistory) => {
+    setMockHistoryData(mockHistory)
+    setStage('mock-history')
   }
 
   const renderScreen = () => {
@@ -76,8 +113,39 @@ export default function App() {
           selectedLevel={selectedLevel}
           setSelectedLevel={setSelectedLevel}
           onGenerateProblem={handleGenerateProblem}
-          onUseMock={handleUseMock}
+          onShowHistory={() => setStage('history')}
+          onShowMock={() => setStage('mock')}
           isGenerating={isGenerating}
+        />
+      )
+    }
+
+    if (stage === 'mock') {
+      return (
+        <MockScreen
+          onBack={() => setStage('setup')}
+          onTestProblem={handleTestProblem}
+          onTestResult={handleTestResult}
+          onTestHistory={handleTestHistory}
+        />
+      )
+    }
+
+    if (stage === 'history') {
+      return (
+        <HistoryScreen
+          onBack={() => setStage('setup')}
+          onSelectProblem={handleSelectHistoryProblem}
+        />
+      )
+    }
+
+    if (stage === 'mock-history') {
+      return (
+        <HistoryScreen
+          onBack={() => setStage('mock')}
+          onSelectProblem={handleSelectHistoryProblem}
+          mockData={mockHistoryData}
         />
       )
     }
@@ -101,9 +169,10 @@ export default function App() {
         <ResultScreen
           problem={problem}
           evaluationResult={evaluationResult}
-          onNextProblem={handleGenerateProblem}
+          onNextProblem={isHistoryView ? null : handleGenerateProblem}
           onChangeSettings={() => setStage('setup')}
           isGenerating={isGenerating}
+          isHistoryView={isHistoryView}
         />
       )
     }

@@ -3,7 +3,8 @@ export default function ResultScreen({
   evaluationResult,
   onNextProblem,
   onChangeSettings,
-  isGenerating
+  isGenerating,
+  isHistoryView = false
 }) {
   const getScoreColorClass = (score) => {
     if (score >= 8) {
@@ -92,18 +93,20 @@ export default function ResultScreen({
           </div>
 
           <div className="flex gap-4">
-            <button
-              onClick={onNextProblem}
-              disabled={isGenerating}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600"
-            >
-              {isGenerating ? '生成中...' : '次の問題へ（同じ設定）'}
-            </button>
+            {!isHistoryView && onNextProblem && (
+              <button
+                onClick={onNextProblem}
+                disabled={isGenerating}
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600"
+              >
+                {isGenerating ? '生成中...' : '次の問題へ（同じ設定）'}
+              </button>
+            )}
             <button
               onClick={onChangeSettings}
-              className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-3 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              className={`${isHistoryView ? 'w-full' : 'flex-1'} bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-3 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors`}
             >
-              設定を変更して新しい問題
+              {isHistoryView ? 'トップに戻る' : '設定を変更して新しい問題'}
             </button>
           </div>
         </div>
