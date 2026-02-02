@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Dispatch, SetStateAction } from 'react'
+import { Theme } from '../types'
 
 const THEME_KEY = 'theme-preference'
 
-export function useTheme() {
-  const [theme, setTheme] = useState(() => {
+export function useTheme(): [Theme, Dispatch<SetStateAction<Theme>>] {
+  const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(THEME_KEY) || 'system'
+      const stored = localStorage.getItem(THEME_KEY)
+      return (stored as Theme) || 'system'
     }
     return 'system'
   })
@@ -13,7 +15,7 @@ export function useTheme() {
   useEffect(() => {
     const root = document.documentElement
 
-    const applyTheme = (themeValue) => {
+    const applyTheme = (themeValue: Theme) => {
       // まずdarkクラスを削除してからリセット
       root.classList.remove('dark')
 

@@ -19,15 +19,15 @@ export default function CodeViewer({ code, language, className = '' }) {
   }, [code, hljsLang])
 
   return (
-    <div className={`bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto text-xs sm:text-sm ${className}`}>
+    <div className={`bg-slate-100 dark:bg-slate-900 rounded-lg overflow-x-auto text-xs sm:text-sm ${className}`}>
       <table className="w-full border-collapse">
         <tbody>
           {highlightedLines.map((line, index) => (
-            <tr key={index} className="hover:bg-gray-200/50 dark:hover:bg-gray-800/50">
-              <td className="sticky left-0 select-none text-right pr-4 pl-4 py-0 text-gray-400 dark:text-gray-600 border-r border-gray-300 dark:border-gray-700 align-top w-1 bg-gray-100 dark:bg-gray-900">
+            <tr key={index} className="hover:bg-slate-200/50 dark:hover:bg-slate-800/50">
+              <td className="sticky left-0 select-none text-right pr-4 pl-4 py-0 text-slate-400 dark:text-slate-600 border-r border-slate-300 dark:border-slate-700 align-top w-1 bg-slate-100 dark:bg-slate-900">
                 {index + 1}
               </td>
-              <td className="pl-4 pr-4 py-0 whitespace-pre font-mono text-gray-900 dark:text-gray-100">
+              <td className="pl-4 pr-4 py-0 whitespace-pre font-mono text-slate-900 dark:text-slate-100">
                 <code
                   className={`language-${hljsLang}`}
                   dangerouslySetInnerHTML={{ __html: line || '&nbsp;' }}

@@ -1,0 +1,244 @@
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import SetupScreen from './components/SetupScreen'
+import ProblemScreen from './components/ProblemScreen'
+import ResultScreen from './components/ResultScreen'
+import HistoryScreen from './components/HistoryScreen'
+import ThemeSelector from './components/ThemeSelector'
+import LoadingOverlay from './components/LoadingOverlay'
+import MockScreen from './components/MockScreen'
+import Toast from './components/Toast'
+import { generateProblem, evaluateAnswer } from './api/claude'
+import { saveToHistory } from './lib/historyStorage'
+import { MOCK_PROBLEM, MOCK_EVALUATION } from './constants/mockData'
+import { useTheme } from './hooks/useTheme'
+import { useToast } from './hooks/useToast'
+import { Problem, EvaluationResult, Language, Level, Stage, HistoryEntry } from './types'
+
+export default function App() {
+  const [theme, setTheme] = useTheme()
+  const { toast, showToast, hideToast } = useToast()
+  const [stage, setStage] = useState<Stage>('setup')
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('Kotlin')
+  const [selectedLevel, setSelectedLevel] = useState<Level>(5)
+  const [problem, setProblem] = useState<Problem | null>(null)
+  const [userAnswer, setUserAnswer] = useState<string>('')
+  const [evaluationResult, setEvaluationResult] = useState<EvaluationResult | null>(null)
+  const [isHistoryView, setIsHistoryView] = useState<boolean>(false)
+  const [isGenerating, setIsGenerating] = useState<boolean>(false)
+  const [isEvaluating, setIsEvaluating] = useState<boolean>(false)
+  const [mockHistoryData, setMockHistoryData] = useState<any>(null)
+  const [isMockMode, setIsMockMode] = useState<boolean>(false)
+
+  // 仮想ページビューの計測
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_path: `/${stage}`,
+        page_title: `Stage: ${stage}`,
+        send_to: '%VITE_GA_MEASUREMENT_ID%'
+      });
+    }
+  }, [stage]);
+
+  const onGenerateProblem = async () => {
+    setIsGenerating(true)
+    setIsMockMode(false)
+    setIsHistoryView(false)
+    try {
+      const newProblem = await generateProblem(selectedLanguage, selectedLevel)
+      setProblem(newProblem)
+      setStage('problem')
+      setUserAnswer('')
+      setEvaluationResult(null)
+    } catch (error) {
+      console.error('Failed to generate problem:', error)
+      showToast('問題の生成に失敗しました。時間をおいて再度お試しください。')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const onEvaluate = async () => {
+    setIsEvaluating(true)
+    try {
+      if (isMockMode) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        setEvaluationResult(MOCK_EVALUATION)
+      } else {
+        const result = await evaluateAnswer(problem, userAnswer)
+        setEvaluationResult(result)
+        saveToHistory(problem.language || selectedLanguage, problem, userAnswer, result)
+      }
+      setStage('result')
+    } catch (error) {
+      console.error('Failed to evaluate answer:', error)
+      showToast('評価に失敗しました。ネットワークを確認してください。')
+    } finally {
+      setIsEvaluating(false)
+    }
+  }
+
+  const handleSelectHistoryProblem = (entry) => {
+    setProblem({ ...entry.problem, language: entry.language })
+    setUserAnswer(entry.userAnswer)
+    setEvaluationResult(entry.evaluationResult)
+    setStage('result')
+    setIsMockMode(false)
+    setIsHistoryView(true)
+  }
+
+  const handleTestProblem = async (mockProblem, showLoading = false) => {
+    if (showLoading) {
+      setIsGenerating(true)
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      setIsGenerating(false)
+    }
+    setProblem(mockProblem)
+    setStage('problem')
+    setUserAnswer('')
+    setEvaluationResult(null)
+    setIsMockMode(true)
+    setIsHistoryView(false)
+  }
+
+  const handleTestResult = (mockProblem, mockEvaluation) => {
+    setProblem(mockProblem)
+    setEvaluationResult(mockEvaluation)
+    setStage('result')
+    setIsMockMode(true)
+    setIsHistoryView(false)
+  }
+
+  const handleTestHistory = (mockHistory) => {
+    setMockHistoryData(mockHistory)
+    setStage('mock-history')
+  }
+
+  const renderScreen = () => {
+    switch (stage) {
+      case 'setup':
+        return (
+          <motion.div
+            key="setup"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <SetupScreen
+              selectedLanguage={selectedLanguage}
+              setSelectedLanguage={setSelectedLanguage}
+              selectedLevel={selectedLevel}
+              setSelectedLevel={setSelectedLevel}
+              onGenerateProblem={onGenerateProblem}
+              onShowHistory={() => setStage('history')}
+              onShowMock={() => setStage('mock')}
+              isGenerating={isGenerating}
+            />
+          </motion.div>
+        )
+      case 'mock':
+        return (
+          <motion.div
+            key="mock"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <MockScreen
+              onBack={() => setStage('setup')}
+              onTestProblem={handleTestProblem}
+              onTestResult={handleTestResult}
+              onTestHistory={handleTestHistory}
+            />
+          </motion.div>
+        )
+      case 'history':
+        return (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+          >
+            <HistoryScreen
+              onBack={() => setStage('setup')}
+              onSelectProblem={handleSelectHistoryProblem}
+            />
+          </motion.div>
+        )
+      case 'mock-history':
+        return (
+          <motion.div
+            key="mock-history"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <HistoryScreen
+              onBack={() => setStage('mock')}
+              onSelectProblem={handleSelectHistoryProblem}
+              mockData={mockHistoryData}
+            />
+          </motion.div>
+        )
+      case 'problem':
+        return (
+          <motion.div
+            key="problem"
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ type: "spring", damping: 20, stiffness: 100 }}
+          >
+            <ProblemScreen
+              problem={problem}
+              selectedLanguage={selectedLanguage}
+              userAnswer={userAnswer}
+              setUserAnswer={setUserAnswer}
+              onEvaluate={onEvaluate}
+              onBack={() => setStage('setup')}
+              isEvaluating={isEvaluating}
+            />
+          </motion.div>
+        )
+      case 'result':
+        return (
+          <motion.div
+            key="result"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.6, type: "spring" }}
+          >
+            <ResultScreen
+              problem={problem}
+              evaluationResult={evaluationResult}
+              onNextProblem={isHistoryView ? null : onGenerateProblem}
+              onChangeSettings={() => {
+                setStage('setup')
+                setIsHistoryView(false)
+              }}
+              isGenerating={isGenerating}
+              isHistoryView={isHistoryView}
+            />
+          </motion.div>
+        )
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="selection:bg-blue-500/30">
+      <ThemeSelector theme={theme} setTheme={setTheme} />
+      <Toast {...toast} onClose={hideToast} />
+      <AnimatePresence mode="wait">
+        {renderScreen()}
+      </AnimatePresence>
+      {isGenerating && <LoadingOverlay message="問題を生成中..." />}
+      {isEvaluating && <LoadingOverlay message="回答を評価中..." />}
+    </div>
+  )
+}

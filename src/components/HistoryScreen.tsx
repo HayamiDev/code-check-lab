@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
+import { ChevronLeft, TrendingUp, Filter } from 'lucide-react'
 import { LANGUAGES } from '../constants/languages'
 import { getHistory, deleteFromHistory, getTotalCounts } from '../lib/historyStorage'
 import { getScoreColorClass, getScoreIcon } from '../constants/scoreColors'
 import ConfirmDialog from './ConfirmDialog'
+import SectionHeader from './SectionHeader'
 
 function ScoreChart({ data }) {
   if (data.length < 2) {
     return (
-      <div className="h-40 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+      <div className="h-40 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
         グラフ表示には2件以上のデータが必要です
       </div>
     )
@@ -39,10 +42,16 @@ function ScoreChart({ data }) {
   const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
 
   return (
-    <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">スコア推移</h3>
-        <span className="text-sm text-gray-500 dark:text-gray-400">平均: {avg}点</span>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-8 premium-card p-6"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <SectionHeader icon={TrendingUp} variant="primary">
+          スコア推移
+        </SectionHeader>
+        <span className="text-sm text-slate-500 dark:text-slate-400 font-bold">平均: {avg}点</span>
       </div>
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-40 mb-3" preserveAspectRatio="xMinYMid meet">
         {/* Y軸グリッドライン */}
@@ -62,7 +71,7 @@ function ScoreChart({ data }) {
                     ? "text-yellow-400 dark:text-yellow-400"
                     : val === 70
                     ? "text-green-400 dark:text-green-400"
-                    : "text-gray-200 dark:text-gray-500"
+                    : "text-slate-200 dark:text-slate-500"
                 }
                 strokeWidth={isGuide ? "1" : "0.5"}
                 strokeDasharray={isGuide ? "4,2" : "none"}
@@ -73,7 +82,7 @@ function ScoreChart({ data }) {
                 y={y + 3}
                 textAnchor="end"
                 fill="currentColor"
-                className="text-gray-500 dark:text-gray-300"
+                className="text-slate-500 dark:text-slate-300"
                 fontSize="9"
               >
                 {val}
@@ -125,18 +134,18 @@ function ScoreChart({ data }) {
       <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
         <div className="flex items-center gap-1">
           <div className="w-6 h-0.5 bg-green-400"></div>
-          <span className="text-gray-600 dark:text-gray-400">70点ライン（合格）</span>
+          <span className="text-slate-600 dark:text-slate-400">70点ライン（合格）</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-6 h-0.5 bg-yellow-400"></div>
-          <span className="text-gray-600 dark:text-gray-400">50点ライン</span>
+          <span className="text-slate-600 dark:text-slate-400">50点ライン</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded-full bg-blue-600 dark:bg-blue-300"></div>
-          <span className="text-gray-600 dark:text-gray-400">あなたのスコア</span>
+          <span className="text-slate-600 dark:text-slate-400">あなたのスコア</span>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -230,34 +239,51 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 py-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">過去の問題</h1>
-            <button
-              onClick={onBack}
-              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium"
-            >
-              ← 戻る
-            </button>
-          </div>
+    <div className="min-h-screen p-4 sm:p-8 max-w-7xl mx-auto space-y-8">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            History
+          </h1>
+          <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mt-2">
+            過去のレビューセッション
+          </p>
+        </div>
+        <button
+          onClick={onBack}
+          className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-sm uppercase tracking-widest"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Back
+        </button>
+      </header>
 
-          {/* スコア推移グラフ */}
-          {baseHistory.length > 0 && <ScoreChart data={baseHistory} />}
+      <div className="space-y-8">
 
-          {/* フィルター・ソートコントロール */}
-          <div className="mb-6">
+        {/* スコア推移グラフ */}
+        {baseHistory.length > 0 && <ScoreChart data={baseHistory} />}
+
+        {/* フィルター・ソートコントロール */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="premium-card p-6"
+        >
+          <SectionHeader icon={Filter} className="mb-4">
+            Filter & Sort
+          </SectionHeader>
+          <div className="mb-0">
             <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
               <select
                 value={selectedLanguage}
                 onChange={(e) => setSelectedLanguage(e.target.value)}
                 aria-label="言語でフィルター"
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                className="glass-input-premium text-sm"
               >
-                <option value="all">すべての言語</option>
+                <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">すべての言語</option>
                 {LANGUAGES.map(lang => (
-                  <option key={lang} value={lang}>{lang}</option>
+                  <option key={lang} value={lang} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">{lang}</option>
                 ))}
               </select>
 
@@ -265,29 +291,29 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
                 value={scoreFilter}
                 onChange={(e) => setScoreFilter(e.target.value)}
                 aria-label="スコアでフィルター"
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                className="glass-input-premium text-sm"
               >
-                <option value="all">すべてのスコア</option>
-                <option value="high">70点以上</option>
-                <option value="mid">50〜69点</option>
-                <option value="low">50点未満</option>
+                <option value="all" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">すべてのスコア</option>
+                <option value="high" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">70点以上</option>
+                <option value="mid" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">50〜69点</option>
+                <option value="low" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">50点未満</option>
               </select>
 
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 aria-label="並び替え"
-                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                className="glass-input-premium text-sm"
               >
-                <option value="date-desc">日時（新しい順）</option>
-                <option value="date-asc">日時（古い順）</option>
-                <option value="score-desc">スコア（高い順）</option>
-                <option value="score-asc">スコア（低い順）</option>
-                <option value="level-desc">難易度（高い順）</option>
-                <option value="level-asc">難易度（低い順）</option>
+                <option value="date-desc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">日時（新しい順）</option>
+                <option value="date-asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">日時（古い順）</option>
+                <option value="score-desc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">スコア（高い順）</option>
+                <option value="score-asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">スコア（低い順）</option>
+                <option value="level-desc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">難易度（高い順）</option>
+                <option value="level-asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">難易度（低い順）</option>
               </select>
 
-              <div className="sm:ml-auto text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
+              <div className="sm:ml-auto text-sm text-slate-600 dark:text-slate-400 text-center sm:text-left">
                 通算: {selectedLanguage === 'all'
                   ? Object.values(counts).reduce((a, b) => a + b, 0)
                   : (counts[selectedLanguage] || 0)
@@ -295,18 +321,24 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
               </div>
             </div>
           </div>
+        </motion.div>
 
-          {filteredHistory.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        {filteredHistory.length === 0 ? (
+          <div className="premium-card p-12 text-center">
+            <p className="text-slate-500 dark:text-slate-400 font-medium">
               {baseHistory.length === 0 ? '保存された問題はありません' : '条件に一致する問題はありません'}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredHistory.map((entry) => (
-                <div
-                  key={`${entry.language}-${entry.id}`}
-                  className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                >
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredHistory.map((entry, index) => (
+              <motion.div
+                key={`${entry.language}-${entry.id}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="premium-card p-6 hover:scale-[1.01] transition-all duration-300"
+              >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
@@ -320,36 +352,35 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
                           <span>{getScoreIcon(entry.evaluationResult.totalScore)}</span>
                           <span>{entry.evaluationResult.totalScore}点</span>
                         </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
                           {formatDate(entry.timestamp)}
                         </span>
                       </div>
-                      <pre className="text-sm text-gray-600 dark:text-gray-400 truncate font-mono bg-gray-100 dark:bg-gray-900 p-2 rounded">
+                      <pre className="text-sm text-slate-600 dark:text-slate-400 truncate font-mono bg-slate-100 dark:bg-slate-900 p-2 rounded">
                         {entry.problem.code.split('\n')[0]}...
                       </pre>
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => onSelectProblem(entry)}
-                        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                        className="primary-button"
                       >
                         詳細
                       </button>
                       {!isMock && (
                         <button
                           onClick={() => handleDeleteClick(entry.language, entry.id)}
-                          className="px-3 py-1 text-sm bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-900 transition-colors"
+                          className="danger-button"
                         >
                           削除
                         </button>
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
 
       <ConfirmDialog
