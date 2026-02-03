@@ -133,10 +133,10 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
         <button
           onClick={onBack}
           className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-sm uppercase tracking-widest"
-          aria-label="セットアップ画面に戻る"
+          aria-label="戻る"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
-          戻る
+          Back
         </button>
       </header>
 

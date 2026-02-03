@@ -11,7 +11,7 @@ import Toast from './components/Toast'
 import AchievementScreen from './components/AchievementScreen'
 import TrophyNotification from './components/TrophyNotification'
 import { generateProblem, evaluateAnswer } from './api/claude'
-import { saveToHistory, getHistory } from './lib/historyStorage'
+import { saveToHistory, getAllHistoryEntries } from './lib/historyStorage'
 import { updateBadgesAndTitles, Badge, Title } from './lib/badgeSystem'
 import { MOCK_EVALUATION } from './constants/mockData'
 import { useTheme } from './hooks/useTheme'
@@ -40,6 +40,37 @@ export default function App() {
   const [isMockMode, setIsMockMode] = useState<boolean>(false)
   const [trophyQueue, setTrophyQueue] = useState<Array<{ badge?: Badge; title?: Title }>>([])
   const [currentTrophy, setCurrentTrophy] = useState<{ badge?: Badge; title?: Title } | null>(null)
+
+  // ブラウザの戻る/進むボタンでステージ変更に対応
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.stage) {
+        setStage(event.state.stage)
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+
+    // 初回マウント時に現在のURLからステージを復元
+    const path = window.location.pathname
+    const stageFromPath = path.replace(/^\/code-check-lab\/?/, '') || 'setup'
+    if (stageFromPath && stageFromPath !== stage) {
+      setStage(stageFromPath as Stage)
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  // ステージ変更時にブラウザ履歴を更新
+  useEffect(() => {
+    const baseUrl = '/code-check-lab'
+    const url = stage === 'setup' ? baseUrl : `${baseUrl}/${stage}`
+
+    // 現在のURLと異なる場合のみ履歴を追加
+    if (window.location.pathname !== url) {
+      window.history.pushState({ stage }, '', url)
+    }
+  }, [stage])
 
   // トロフィーキューの処理
   useEffect(() => {
@@ -91,7 +122,7 @@ export default function App() {
         saveToHistory(problem.language || selectedLanguage, problem, userAnswer, result)
 
         // バッジと称号をチェック
-        const allHistory = getHistory()
+        const allHistory = getAllHistoryEntries()
         const dummyStreakData = {
           currentStreak: 0,
           longestStreak: 0,
@@ -162,6 +193,10 @@ export default function App() {
     setTrophyQueue(prev => [...prev, { title }])
   }
 
+  const handleTestAchievements = () => {
+    setStage('mock-achievement')
+  }
+
   const renderScreen = () => {
     switch (stage) {
       case 'setup':
@@ -201,6 +236,7 @@ export default function App() {
               onTestHistory={handleTestHistory}
               onTestBadge={handleTestBadge}
               onTestTitle={handleTestTitle}
+              onTestAchievements={handleTestAchievements}
             />
           </motion.div>
         )
@@ -284,6 +320,17 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
           >
             <AchievementScreen onBack={() => setStage('setup')} />
+          </motion.div>
+        )
+      case 'mock-achievement':
+        return (
+          <motion.div
+            key="mock-achievement"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <AchievementScreen onBack={() => setStage('mock')} mockMode={true} />
           </motion.div>
         )
       default:

@@ -3,14 +3,6 @@ import { ChevronLeft, Beaker } from 'lucide-react'
 import { MOCK_PROBLEM, MOCK_EVALUATION } from '../constants/mockData'
 import { Badge, Title } from '../lib/badgeSystem'
 
-const MOCK_HISTORY = generateMockHistory()
-
-// モックヒストリーから言語カウントを計算
-const MOCK_COUNTS = MOCK_HISTORY.reduce((acc, entry) => {
-  acc[entry.language] = (acc[entry.language] || 0) + 1
-  return acc
-}, {} as Record<string, number>)
-
 // より充実したモックヒストリーデータを生成
 const generateMockHistory = () => {
   const languages = ['Python', 'TypeScript', 'Kotlin', 'JavaScript', 'Go', 'Rust', 'Swift', 'Java']
@@ -28,7 +20,6 @@ const generateMockHistory = () => {
 
   for (let i = 0; i < 365; i++) {
     const daysAgo = i
-    const timestamp = new Date(now - daysAgo * 86400000).toISOString()
 
     // リアルな学習パターン: 平日は70%の確率、週末は40%の確率でセッションあり
     const dayOfWeek = new Date(now - daysAgo * 86400000).getDay()
@@ -124,6 +115,14 @@ const generateMockHistory = () => {
   return history
 }
 
+const MOCK_HISTORY = generateMockHistory()
+
+// モックヒストリーから言語カウントを計算
+const MOCK_COUNTS = MOCK_HISTORY.reduce((acc, entry) => {
+  acc[entry.language] = (acc[entry.language] || 0) + 1
+  return acc
+}, {} as Record<string, number>)
+
 // モックバッジ
 const MOCK_BADGES: Badge[] = [
   {
@@ -210,6 +209,7 @@ interface MockScreenProps {
   onTestHistory: (mockData: any) => void
   onTestBadge: (badge: Badge) => void
   onTestTitle: (title: Title) => void
+  onTestAchievements: () => void
 }
 
 export default function MockScreen({
@@ -218,7 +218,8 @@ export default function MockScreen({
   onTestResult,
   onTestHistory,
   onTestBadge,
-  onTestTitle
+  onTestTitle,
+  onTestAchievements
 }: MockScreenProps) {
   return (
     <div className="min-h-screen p-4 sm:p-8 max-w-4xl mx-auto space-y-8" role="main" aria-label="開発者向けプレイグラウンド">
@@ -237,7 +238,7 @@ export default function MockScreen({
         <button
           onClick={onBack}
           className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-sm uppercase tracking-widest"
-          aria-label="セットアップ画面に戻る"
+          aria-label="戻る"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
           Back
@@ -288,6 +289,20 @@ export default function MockScreen({
                 aria-label="過去の問題画面をモックデータで表示"
               >
                 過去の問題画面を表示
+              </button>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="premium-card p-6">
+              <h2 className="font-semibold text-slate-900 dark:text-white mb-2">バッジ・称号画面</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                実績コレクションの表示画面（モックデータ）
+              </p>
+              <button
+                onClick={onTestAchievements}
+                className="primary-button w-full"
+                aria-label="バッジ・称号画面をモックデータで表示"
+              >
+                バッジ・称号画面を表示
               </button>
             </motion.div>
 
@@ -388,14 +403,14 @@ export default function MockScreen({
               </button>
               <button
                 onClick={() => {
-                  const all = [
-                    ...MOCK_BADGES.map(b => ({ badge: b })),
-                    ...MOCK_TITLES.map(t => ({ title: t }))
+                  const all: Array<{ badge?: Badge; title?: Title }> = [
+                    ...MOCK_BADGES.map(b => ({ badge: b as Badge })),
+                    ...MOCK_TITLES.map(t => ({ title: t as Title }))
                   ]
                   all.forEach((item, index) => {
                     setTimeout(() => {
-                      if (item.badge) onTestBadge(item.badge)
-                      if (item.title) onTestTitle(item.title)
+                      if ('badge' in item && item.badge) onTestBadge(item.badge)
+                      if ('title' in item && item.title) onTestTitle(item.title)
                     }, index * 100)
                   })
                 }}

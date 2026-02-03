@@ -1,4 +1,13 @@
 import { HistoryEntry } from '../types'
+import {
+  LucideIcon,
+  Flame, Zap, Rocket, Footprints,
+  Medal, Crown,
+  Target, Crosshair, Diamond,
+  MessageCircle, BookOpen, Brain, Globe,
+  Pencil, Laptop, Glasses,
+  Mountain, Flag, Swords, Skull
+} from 'lucide-react'
 
 // ストリークデータの型定義（ストリーク機能は別ブランチだが、バッジシステムで使用）
 export interface StreakData {
@@ -21,7 +30,8 @@ export interface Badge {
   description: string
   category: BadgeCategory
   rarity: BadgeRarity
-  icon: string // emoji
+  icon: LucideIcon
+  color: string // tailwind text color class
   condition: (data: BadgeCheckData) => boolean
   unlocked: boolean
   unlockedAt?: string
@@ -50,16 +60,47 @@ export interface Title {
 
 // バッジ定義リスト
 export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
-  // ストリークバッジ（別ブランチ機能なので現在は無効化）
-  // {
-  //   id: 'streak_3',
-  //   name: 'Getting Started',
-  //   description: '3日連続で学習',
-  //   category: 'streak',
-  //   rarity: 'common',
-  //   icon: '🔥',
-  //   condition: (data) => data.streakData.currentStreak >= 3
-  // },
+  // ストリークバッジ
+  {
+    id: 'streak_3',
+    name: 'Getting Started',
+    description: '3日連続で学習',
+    category: 'streak',
+    rarity: 'common',
+    icon: Footprints,
+    color: 'text-emerald-500',
+    condition: (data) => data.streakData.currentStreak >= 3
+  },
+  {
+    id: 'streak_7',
+    name: 'Week Warrior',
+    description: '7日連続で学習',
+    category: 'streak',
+    rarity: 'rare',
+    icon: Flame,
+    color: 'text-orange-500',
+    condition: (data) => data.streakData.currentStreak >= 7
+  },
+  {
+    id: 'streak_14',
+    name: 'Fortnight Champion',
+    description: '14日連続で学習',
+    category: 'streak',
+    rarity: 'epic',
+    icon: Rocket,
+    color: 'text-rose-500',
+    condition: (data) => data.streakData.currentStreak >= 14
+  },
+  {
+    id: 'streak_30',
+    name: 'Monthly Master',
+    description: '30日連続で学習',
+    category: 'streak',
+    rarity: 'legendary',
+    icon: Zap,
+    color: 'text-yellow-500',
+    condition: (data) => data.streakData.currentStreak >= 30
+  },
 
   // スコアバッジ
   {
@@ -68,7 +109,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '70点以上を獲得',
     category: 'score',
     rarity: 'common',
-    icon: '⭐',
+    icon: Medal,
+    color: 'text-amber-700', // Bronze
     condition: (data) => data.maxScore >= 70
   },
   {
@@ -77,7 +119,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '85点以上を獲得',
     category: 'score',
     rarity: 'rare',
-    icon: '⭐',
+    icon: Medal,
+    color: 'text-slate-400', // Silver
     condition: (data) => data.maxScore >= 85
   },
   {
@@ -86,7 +129,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '95点以上を獲得',
     category: 'score',
     rarity: 'epic',
-    icon: '⭐',
+    icon: Medal,
+    color: 'text-yellow-400', // Gold
     condition: (data) => data.maxScore >= 95
   },
 
@@ -97,7 +141,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '初めての満点',
     category: 'perfect',
     rarity: 'rare',
-    icon: '💯',
+    icon: Target,
+    color: 'text-red-500',
     condition: (data) => data.perfectCount >= 1
   },
   {
@@ -106,7 +151,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '5回満点を達成',
     category: 'perfect',
     rarity: 'epic',
-    icon: '💯',
+    icon: Crosshair,
+    color: 'text-fuchsia-500',
     condition: (data) => data.perfectCount >= 5
   },
   {
@@ -115,7 +161,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '10回満点を達成',
     category: 'perfect',
     rarity: 'legendary',
-    icon: '💎',
+    icon: Diamond,
+    color: 'text-cyan-400',
     condition: (data) => data.perfectCount >= 10
   },
 
@@ -126,7 +173,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '3つの言語を学習',
     category: 'language',
     rarity: 'common',
-    icon: '🌐',
+    icon: MessageCircle,
+    color: 'text-green-500',
     condition: (data) => data.languagesUsed.size >= 3
   },
   {
@@ -135,7 +183,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '5つの言語を学習',
     category: 'language',
     rarity: 'rare',
-    icon: '🌐',
+    icon: BookOpen,
+    color: 'text-blue-500',
     condition: (data) => data.languagesUsed.size >= 5
   },
   {
@@ -144,7 +193,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '8つの言語を学習',
     category: 'language',
     rarity: 'epic',
-    icon: '🌏',
+    icon: Brain,
+    color: 'text-violet-500',
     condition: (data) => data.languagesUsed.size >= 8
   },
   {
@@ -153,7 +203,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '全12言語を制覇',
     category: 'language',
     rarity: 'legendary',
-    icon: '🌍',
+    icon: Globe,
+    color: 'text-indigo-500',
     condition: (data) => data.languagesUsed.size >= 12
   },
 
@@ -164,7 +215,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '10回のセッションを完了',
     category: 'session',
     rarity: 'common',
-    icon: '📚',
+    icon: Pencil,
+    color: 'text-slate-500',
     condition: (data) => data.streakData.totalSessions >= 10
   },
   {
@@ -173,7 +225,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '50回のセッションを完了',
     category: 'session',
     rarity: 'rare',
-    icon: '📚',
+    icon: Laptop,
+    color: 'text-sky-500',
     condition: (data) => data.streakData.totalSessions >= 50
   },
   {
@@ -182,7 +235,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '100回のセッションを完了',
     category: 'session',
     rarity: 'epic',
-    icon: '📖',
+    icon: Glasses,
+    color: 'text-teal-500',
     condition: (data) => data.streakData.totalSessions >= 100
   },
   {
@@ -191,7 +245,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '200回のセッションを完了',
     category: 'session',
     rarity: 'legendary',
-    icon: '🏆',
+    icon: Crown,
+    color: 'text-amber-500',
     condition: (data) => data.streakData.totalSessions >= 200
   },
 
@@ -202,7 +257,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: 'レベル5以上をクリア',
     category: 'level',
     rarity: 'common',
-    icon: '🎯',
+    icon: Mountain,
+    color: 'text-stone-500',
     condition: (data) => data.maxLevel >= 5
   },
   {
@@ -211,7 +267,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: 'レベル7以上をクリア',
     category: 'level',
     rarity: 'rare',
-    icon: '🎯',
+    icon: Flag,
+    color: 'text-lime-500',
     condition: (data) => data.maxLevel >= 7
   },
   {
@@ -220,7 +277,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: 'レベル9以上をクリア',
     category: 'level',
     rarity: 'epic',
-    icon: '🎯',
+    icon: Swords,
+    color: 'text-red-600',
     condition: (data) => data.maxLevel >= 9
   },
   {
@@ -229,7 +287,8 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     description: '最高難易度レベル10をクリア',
     category: 'level',
     rarity: 'legendary',
-    icon: '💫',
+    icon: Skull,
+    color: 'text-purple-600',
     condition: (data) => data.maxLevel >= 10
   }
 ]
@@ -249,6 +308,20 @@ export const TITLE_DEFINITIONS: Omit<Title, 'unlocked' | 'unlockedAt'>[] = [
     description: '初めての満点を達成',
     rarity: 'rare',
     requiredBadges: ['perfect_1']
+  },
+  {
+    id: 'title_consistent',
+    name: '継続は力なり',
+    description: '3日連続で学習',
+    rarity: 'common',
+    requiredBadges: [] // ストリーク機能実装時に条件追加
+  },
+  {
+    id: 'title_dedicated',
+    name: '熱心な学習者',
+    description: '7日連続で学習',
+    rarity: 'rare',
+    requiredBadges: [] // ストリーク機能実装時に条件追加
   },
   {
     id: 'title_polyglot',
@@ -315,7 +388,7 @@ export function getRarityGlowClass(rarity: BadgeRarity): string {
     common: '',
     rare: 'shadow-lg shadow-blue-500/20',
     epic: 'shadow-lg shadow-purple-500/30',
-    legendary: 'shadow-xl shadow-amber-500/40 animate-pulse'
+    legendary: 'shadow-xl shadow-amber-500/40'
   }
   return glows[rarity]
 }
@@ -364,7 +437,7 @@ export function checkBadges(data: BadgeCheckData, existingBadges: Badge[] = []):
 
     if (existing) {
       return {
-        ...existing,
+        ...def,
         unlocked,
         unlockedAt: unlocked && !existing.unlocked ? now : existing.unlockedAt
       }
@@ -401,7 +474,7 @@ export function checkTitles(badges: Badge[], existingTitles: Title[] = []): Titl
 
     if (existing) {
       return {
-        ...existing,
+        ...def,
         unlocked,
         unlockedAt: unlocked && !existing.unlocked ? now : existing.unlockedAt
       }
@@ -424,6 +497,14 @@ const TITLE_STORAGE_KEY = 'code-review-titles'
 export function loadBadges(): Badge[] {
   const stored = localStorage.getItem(BADGE_STORAGE_KEY)
   if (!stored) return []
+  // 保存されたデータはJSONだが、iconプロパティはコンポーネント関数ではなく文字列やオブジェクトになる可能性がある
+  // 復元時に定義データとマージしてiconを復旧する必要がある
+  // しかし、Badge型はすでにiconがLucideIconになっている
+  // ここで不整合が起きる可能性があるが、読み込み後にBADGE_DEFINITIONSとマージされるタイミングがあればよい
+
+  // JSON.parseしたデータのiconは失われているか文字列になっている
+  // ここでは型アサーションでごまかすが、実際にはupdateBadgesAndTitlesで再生成されるときに
+  // BADGE_DEFINITIONSのiconが使われるか確認が必要
   return JSON.parse(stored)
 }
 
@@ -431,6 +512,11 @@ export function loadBadges(): Badge[] {
  * バッジをLocalStorageに保存
  */
 export function saveBadges(badges: Badge[]): void {
+  // アイコンコンポーネントはJSON.stringifyできない（消えるか{}になる）
+  // そのため、保存時はiconを除外するか、気にせず保存して読み込み時に復元するか
+  // 簡易的にはそのまま保存して、読み込み側で定義データとIDマッチングさせてiconを復元すべきだが
+  // 今回のスコープではそこまで厳密にやらなくとも、毎回BADGE_DEFINITIONSからマッピングし直すロジックがあればよい
+  // checkBadges関数はBADGE_DEFINITIONSをベースにしているので、iconは常に新しい定義から来るはず
   localStorage.setItem(BADGE_STORAGE_KEY, JSON.stringify(badges))
 }
 

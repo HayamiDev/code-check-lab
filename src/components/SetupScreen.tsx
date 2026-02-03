@@ -88,8 +88,8 @@ export default function SetupScreen({
           >
             <Code2 className="text-white w-8 h-8" />
           </motion.div>
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">
-            Code Review <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Lab</span>
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight leading-tight">
+            Code Review <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 inline-block">Lab</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-lg sm:text-xl">
             AIが生成するコードから欠陥を見つけ出し、<br className="hidden sm:block" />

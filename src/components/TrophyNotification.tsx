@@ -48,14 +48,13 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
           aria-live="assertive"
         >
           {/* PlayStation風のカード */}
-          <div className="relative overflow-hidden rounded-xl shadow-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700">
+          <div className="relative overflow-hidden rounded-xl shadow-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 border border-slate-300 dark:border-slate-700">
             {/* 背景のグロー効果 */}
-            <div className={`absolute inset-0 opacity-20 ${
-              item.rarity === 'legendary' ? 'bg-gradient-to-r from-amber-500 to-yellow-500' :
+            <div className={`absolute inset-0 opacity-30 dark:opacity-20 ${item.rarity === 'legendary' ? 'bg-gradient-to-r from-amber-500 to-yellow-500' :
               item.rarity === 'epic' ? 'bg-gradient-to-r from-purple-500 to-pink-500' :
-              item.rarity === 'rare' ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
-              'bg-slate-600'
-            }`} aria-hidden="true" />
+                item.rarity === 'rare' ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
+                  'bg-slate-600'
+              }`} aria-hidden="true" />
 
             {/* メインコンテンツ */}
             <div className="relative p-5">
@@ -65,7 +64,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
+                  className="w-12 h-12 bg-white/20 dark:bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
                 >
                   <span className="text-2xl">{isBadge ? '🏆' : '👑'}</span>
                 </motion.div>
@@ -74,7 +73,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="text-xs font-bold text-slate-400 uppercase tracking-wider"
+                    className="text-xs font-bold text-slate-300 dark:text-slate-400 uppercase tracking-wider"
                   >
                     {isBadge ? 'Badge Unlocked' : 'Title Earned'}
                   </motion.p>
@@ -101,7 +100,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
                     className="text-6xl"
                     aria-hidden="true"
                   >
-                    {badge.icon}
+                    <badge.icon className={`w-16 h-16 drop-shadow-lg ${badge.color || 'text-white'}`} strokeWidth={1.5} />
                   </motion.div>
                 )}
 
@@ -111,7 +110,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.6 }}
-                    className="text-xl font-black text-white mb-1 leading-tight"
+                    className="text-xl font-black text-white dark:text-white mb-1 leading-tight"
                   >
                     {item.name}
                   </motion.h3>
@@ -119,7 +118,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.7 }}
-                    className="text-sm text-slate-300 leading-snug"
+                    className="text-sm text-slate-200 dark:text-slate-300 leading-snug"
                   >
                     {item.description}
                   </motion.p>
@@ -180,7 +179,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
               setIsVisible(false)
               setTimeout(onClose, 500)
             }}
-            className="absolute -top-2 -right-2 w-6 h-6 bg-slate-700 hover:bg-slate-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg transition-colors"
+            className="absolute -top-2 -right-2 w-6 h-6 bg-slate-600 hover:bg-slate-500 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg transition-colors"
             aria-label="通知を閉じる"
           >
             ✕

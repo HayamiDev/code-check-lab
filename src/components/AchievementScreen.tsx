@@ -3,38 +3,91 @@ import { motion } from 'framer-motion'
 import { ChevronLeft, Award, Crown } from 'lucide-react'
 import BadgeCollection from './BadgeCollection'
 import TitleSelector from './TitleSelector'
-import { Badge, Title, loadBadges, loadTitles } from '../lib/badgeSystem'
+import { Badge, Title, loadBadges, loadTitles, BADGE_DEFINITIONS, TITLE_DEFINITIONS } from '../lib/badgeSystem'
 
 interface AchievementScreenProps {
   onBack: () => void
+  mockMode?: boolean
 }
 
 const SELECTED_TITLE_KEY = 'selected-title-id'
 
-export default function AchievementScreen({ onBack }: AchievementScreenProps) {
+// モックバッジデータ（進捗がわかるように一部だけ解除）
+const generateMockBadges = (): Badge[] => {
+  return BADGE_DEFINITIONS.map((def, index) => {
+    // 最初の12個(約半分)を解除状態に
+    const unlocked = index < 12
+    return {
+      ...def,
+      unlocked,
+      unlockedAt: unlocked ? new Date(Date.now() - (12 - index) * 86400000).toISOString() : undefined
+    }
+  })
+}
+
+// モック称号データ
+const generateMockTitles = (): Title[] => {
+  return TITLE_DEFINITIONS.map((def, index) => {
+    // 最初の3個を解除状態に
+    const unlocked = index < 3
+    return {
+      ...def,
+      unlocked,
+      unlockedAt: unlocked ? new Date(Date.now() - (3 - index) * 86400000).toISOString() : undefined
+    }
+  })
+}
+
+export default function AchievementScreen({ onBack, mockMode = false }: AchievementScreenProps) {
   const [activeTab, setActiveTab] = useState<'badges' | 'titles'>('badges')
   const [badges, setBadges] = useState<Badge[]>([])
   const [titles, setTitles] = useState<Title[]>([])
   const [selectedTitleId, setSelectedTitleId] = useState<string | null>(null)
 
   useEffect(() => {
-    // データを読み込み
-    setBadges(loadBadges())
-    setTitles(loadTitles())
+    if (mockMode) {
+      // モックデータを使用
+      setBadges(generateMockBadges())
+      setTitles(generateMockTitles())
+      setSelectedTitleId('title_perfectionist')
+    } else {
+      // 実際のデータを読み込み
+      let loadedBadges = loadBadges()
+      let loadedTitles = loadTitles()
 
-    // 選択中の称号を読み込み
-    const saved = localStorage.getItem(SELECTED_TITLE_KEY)
-    if (saved) {
-      setSelectedTitleId(saved)
+      // 初回アクセス時: バッジと称号の定義から初期化
+      if (loadedBadges.length === 0) {
+        loadedBadges = BADGE_DEFINITIONS.map(def => ({
+          ...def,
+          unlocked: false
+        }))
+      }
+      if (loadedTitles.length === 0) {
+        loadedTitles = TITLE_DEFINITIONS.map(def => ({
+          ...def,
+          unlocked: false
+        }))
+      }
+
+      setBadges(loadedBadges)
+      setTitles(loadedTitles)
+
+      // 選択中の称号を読み込み
+      const saved = localStorage.getItem(SELECTED_TITLE_KEY)
+      if (saved) {
+        setSelectedTitleId(saved)
+      }
     }
-  }, [])
+  }, [mockMode])
 
   const handleSelectTitle = (titleId: string | null) => {
     setSelectedTitleId(titleId)
-    if (titleId) {
-      localStorage.setItem(SELECTED_TITLE_KEY, titleId)
-    } else {
-      localStorage.removeItem(SELECTED_TITLE_KEY)
+    if (!mockMode) {
+      if (titleId) {
+        localStorage.setItem(SELECTED_TITLE_KEY, titleId)
+      } else {
+        localStorage.removeItem(SELECTED_TITLE_KEY)
+      }
     }
   }
 
@@ -53,10 +106,10 @@ export default function AchievementScreen({ onBack }: AchievementScreenProps) {
         <button
           onClick={onBack}
           className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-sm uppercase tracking-widest"
-          aria-label="セットアップ画面に戻る"
+          aria-label="戻る"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
-          戻る
+          Back
         </button>
       </header>
 
