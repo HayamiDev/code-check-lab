@@ -8,107 +8,52 @@ const MOCK_COUNTS = {
   'Kotlin': 8
 }
 
-const MOCK_HISTORY = [
-  {
-    id: 1,
-    language: 'Python',
-    problem: {
-      level: 3,
-      code: 'def get_user(id):\n    return db.query(f"SELECT * FROM users WHERE id = {id}")',
-      requiredIssuesCount: 2,
-      requiredIssues: [
-        { summary: 'SQLインジェクション', detail: 'f-stringでSQLを組み立てている' },
-        { summary: 'エラーハンドリング不足', detail: 'DB接続エラーを処理していない' }
-      ],
-      optionalIssues: []
-    },
-    userAnswer: 'SQLインジェクションの脆弱性があります',
-    evaluationResult: { totalScore: 65, scores: [{ issueIndex: 0, score: 8, feedback: '良い指摘' }, { issueIndex: 1, score: 5, feedback: '不十分' }], overallFeedback: '概ね良好' },
-    timestamp: new Date(Date.now() - 86400000).toISOString()
-  },
-  {
-    id: 2,
-    language: 'TypeScript',
-    problem: {
-      level: 7,
-      code: 'const data: any = fetchData();\nconsole.log(data.user.name);',
-      requiredIssuesCount: 2,
-      requiredIssues: [
-        { summary: 'any型の使用', detail: '型安全性が失われている' },
-        { summary: 'nullチェック不足', detail: 'undefinedアクセスの可能性' }
-      ],
-      optionalIssues: []
-    },
-    userAnswer: 'any型を使わないでください',
-    evaluationResult: { totalScore: 45, scores: [{ issueIndex: 0, score: 6, feedback: '指摘できている' }, { issueIndex: 1, score: 3, feedback: '見落とし' }], overallFeedback: '改善の余地あり' },
-    timestamp: new Date(Date.now() - 172800000).toISOString()
-  },
-  {
-    id: 3,
-    language: 'Python',
-    problem: {
-      level: 5,
-      code: 'password = input("Enter password: ")\nprint(f"Your password is {password}")',
-      requiredIssuesCount: 2,
-      requiredIssues: [
-        { summary: 'パスワードの平文表示', detail: 'パスワードをログに出力している' },
-        { summary: '入力検証なし', detail: 'パスワードの形式チェックがない' }
-      ],
-      optionalIssues: []
-    },
-    userAnswer: 'パスワードを表示するのはセキュリティ上問題です',
-    evaluationResult: { totalScore: 80, scores: [{ issueIndex: 0, score: 9, feedback: '的確な指摘' }, { issueIndex: 1, score: 7, feedback: '良い' }], overallFeedback: '良い回答です' },
-    timestamp: new Date(Date.now() - 259200000).toISOString()
-  },
-  {
-    id: 4,
-    language: 'Kotlin',
-    problem: {
-      level: 4,
-      code: 'fun processData(list: List<String>?) {\n    list!!.forEach { println(it) }\n}',
-      requiredIssuesCount: 1,
-      requiredIssues: [
-        { summary: '強制アンラップ', detail: '!!演算子でNPEの可能性' }
-      ],
-      optionalIssues: []
-    },
-    userAnswer: '!!を使わずにsafeCallを使うべき',
-    evaluationResult: { totalScore: 90, scores: [{ issueIndex: 0, score: 9, feedback: '完璧' }], overallFeedback: '素晴らしい' },
-    timestamp: new Date(Date.now() - 345600000).toISOString()
-  },
-  {
-    id: 5,
-    language: 'Python',
-    problem: {
-      level: 6,
-      code: 'import pickle\ndata = pickle.loads(user_input)',
-      requiredIssuesCount: 1,
-      requiredIssues: [
-        { summary: 'Pickle脆弱性', detail: '信頼できないデータのデシリアライズ' }
-      ],
-      optionalIssues: []
-    },
-    userAnswer: 'pickleは安全ではない',
-    evaluationResult: { totalScore: 55, scores: [{ issueIndex: 0, score: 5, feedback: 'もう少し具体的に' }], overallFeedback: '方向性は正しい' },
-    timestamp: new Date(Date.now() - 432000000).toISOString()
-  },
-  {
-    id: 6,
-    language: 'TypeScript',
-    problem: {
-      level: 5,
-      code: 'document.innerHTML = userInput;',
-      requiredIssuesCount: 1,
-      requiredIssues: [
-        { summary: 'XSS脆弱性', detail: 'ユーザー入力を直接DOMに挿入' }
-      ],
-      optionalIssues: []
-    },
-    userAnswer: 'XSSの脆弱性があります。サニタイズが必要です。',
-    evaluationResult: { totalScore: 85, scores: [{ issueIndex: 0, score: 9, feedback: '正確な指摘' }], overallFeedback: '良い回答' },
-    timestamp: new Date(Date.now() - 518400000).toISOString()
+// より充実したモックヒストリーデータを生成
+const generateMockHistory = () => {
+  const languages = ['Python', 'TypeScript', 'Kotlin', 'JavaScript', 'Go']
+  const history = []
+  const now = Date.now()
+
+  // 過去90日分のデータを生成（ヒートマップを充実させる）
+  for (let i = 0; i < 90; i++) {
+    const daysAgo = i
+    const timestamp = new Date(now - daysAgo * 86400000).toISOString()
+
+    // ランダムに0-3セッション/日を生成（学習パターンをリアルに）
+    const sessionsPerDay = Math.random() < 0.3 ? 0 : Math.floor(Math.random() * 3) + 1
+
+    for (let j = 0; j < sessionsPerDay; j++) {
+      const language = languages[Math.floor(Math.random() * languages.length)]
+      const level = Math.floor(Math.random() * 11) // 0-10
+      const score = Math.floor(Math.random() * 60) + 40 // 40-100
+
+      history.push({
+        id: `${i}-${j}`,
+        language,
+        problem: {
+          level,
+          code: `// Sample ${language} code for level ${level}`,
+          requiredIssuesCount: Math.floor(Math.random() * 3) + 1,
+          requiredIssues: [
+            { summary: 'サンプル問題', detail: 'モックデータの問題です' }
+          ],
+          optionalIssues: []
+        },
+        userAnswer: 'モックレビュー回答',
+        evaluationResult: {
+          totalScore: score,
+          scores: [{ issueIndex: 0, score: Math.floor(score / 10), feedback: 'モックフィードバック' }],
+          overallFeedback: 'モック総合評価'
+        },
+        timestamp: new Date(now - daysAgo * 86400000 - j * 3600000).toISOString()
+      })
+    }
   }
-]
+
+  return history
+}
+
+const MOCK_HISTORY = generateMockHistory()
 
 export default function MockScreen({ onBack, onTestProblem, onTestResult, onTestHistory }) {
   return (
