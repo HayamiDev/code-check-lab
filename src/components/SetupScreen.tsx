@@ -46,13 +46,13 @@ export default function SetupScreen({
 
   const getLevelLabel = (level: number) => {
     if (level <= 3) return '初級'
-    if (level <= 7) return '中級'
+    if (level <= 6) return '中級'
     return '上級'
   }
 
   const getLevelColor = (level: number) => {
     if (level <= 3) return 'from-green-500 to-emerald-600'
-    if (level <= 7) return 'from-yellow-400 to-orange-500'
+    if (level <= 6) return 'from-yellow-400 to-orange-500'
     return 'from-red-500 to-rose-600'
   }
 
@@ -355,13 +355,13 @@ export default function SetupScreen({
                 <input
                   id="difficulty-slider"
                   type="range"
-                  min="1"
+                  min="0"
                   max="10"
                   value={selectedLevel}
                   onChange={(e) => setSelectedLevel(Number(e.target.value))}
                   className="w-full"
                   aria-label="難易度レベルを選択"
-                  aria-valuemin={1}
+                  aria-valuemin={0}
                   aria-valuemax={10}
                   aria-valuenow={selectedLevel}
                   aria-valuetext={`レベル${selectedLevel} - ${getLevelLabel(selectedLevel)}`}
