@@ -10,6 +10,7 @@ import MockScreen from './components/MockScreen'
 import Toast from './components/Toast'
 import { generateProblem, evaluateAnswer } from './api/claude'
 import { saveToHistory } from './lib/historyStorage'
+import { updateStreak } from './lib/streakStorage'
 import { MOCK_EVALUATION } from './constants/mockData'
 import { useTheme } from './hooks/useTheme'
 import { useToast } from './hooks/useToast'
@@ -76,6 +77,8 @@ export default function App() {
         const result = await evaluateAnswer(problem, userAnswer)
         setEvaluationResult(result)
         saveToHistory(problem.language || selectedLanguage, problem, userAnswer, result)
+        // ストリークを更新
+        updateStreak()
       }
       setStage('result')
     } catch (error) {
