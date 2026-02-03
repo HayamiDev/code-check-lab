@@ -154,6 +154,7 @@ Thumbs.db
 
 # IDEs
 .idea/
+.vscode/
 
 # Package Managers
 pnpm-debug.log*

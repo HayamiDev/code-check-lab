@@ -10,10 +10,16 @@ import MockScreen from './components/MockScreen'
 import Toast from './components/Toast'
 import { generateProblem, evaluateAnswer } from './api/claude'
 import { saveToHistory } from './lib/historyStorage'
-import { MOCK_PROBLEM, MOCK_EVALUATION } from './constants/mockData'
+import { MOCK_EVALUATION } from './constants/mockData'
 import { useTheme } from './hooks/useTheme'
 import { useToast } from './hooks/useToast'
-import { Problem, EvaluationResult, Language, Level, Stage, HistoryEntry } from './types'
+import { Problem, EvaluationResult, Language, Level, Stage, HistoryEntry, MockData } from './types'
+
+declare global {
+  interface Window {
+    gtag: (command: string, action: string, params?: unknown) => void
+  }
+}
 
 export default function App() {
   const [theme, setTheme] = useTheme()
@@ -27,7 +33,7 @@ export default function App() {
   const [isHistoryView, setIsHistoryView] = useState<boolean>(false)
   const [isGenerating, setIsGenerating] = useState<boolean>(false)
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false)
-  const [mockHistoryData, setMockHistoryData] = useState<any>(null)
+  const [mockHistoryData, setMockHistoryData] = useState<MockData | null>(null)
   const [isMockMode, setIsMockMode] = useState<boolean>(false)
 
   // 仮想ページビューの計測
@@ -60,6 +66,7 @@ export default function App() {
   }
 
   const onEvaluate = async () => {
+    if (!problem) return
     setIsEvaluating(true)
     try {
       if (isMockMode) {
@@ -79,7 +86,7 @@ export default function App() {
     }
   }
 
-  const handleSelectHistoryProblem = (entry) => {
+  const handleSelectHistoryProblem = (entry: HistoryEntry) => {
     setProblem({ ...entry.problem, language: entry.language })
     setUserAnswer(entry.userAnswer)
     setEvaluationResult(entry.evaluationResult)
@@ -88,7 +95,7 @@ export default function App() {
     setIsHistoryView(true)
   }
 
-  const handleTestProblem = async (mockProblem, showLoading = false) => {
+  const handleTestProblem = async (mockProblem: Problem, showLoading = false) => {
     if (showLoading) {
       setIsGenerating(true)
       await new Promise(resolve => setTimeout(resolve, 2000))
@@ -102,7 +109,7 @@ export default function App() {
     setIsHistoryView(false)
   }
 
-  const handleTestResult = (mockProblem, mockEvaluation) => {
+  const handleTestResult = (mockProblem: Problem, mockEvaluation: EvaluationResult) => {
     setProblem(mockProblem)
     setEvaluationResult(mockEvaluation)
     setStage('result')
@@ -110,7 +117,7 @@ export default function App() {
     setIsHistoryView(false)
   }
 
-  const handleTestHistory = (mockHistory) => {
+  const handleTestHistory = (mockHistory: MockData) => {
     setMockHistoryData(mockHistory)
     setStage('mock-history')
   }
@@ -128,9 +135,9 @@ export default function App() {
           >
             <SetupScreen
               selectedLanguage={selectedLanguage}
-              setSelectedLanguage={setSelectedLanguage}
+              setSelectedLanguage={(lang) => setSelectedLanguage(lang as Language)}
               selectedLevel={selectedLevel}
-              setSelectedLevel={setSelectedLevel}
+              setSelectedLevel={(level) => setSelectedLevel(level as Level)}
               onGenerateProblem={onGenerateProblem}
               onShowHistory={() => setStage('history')}
               onShowMock={() => setStage('mock')}
@@ -193,7 +200,7 @@ export default function App() {
             transition={{ type: "spring", damping: 20, stiffness: 100 }}
           >
             <ProblemScreen
-              problem={problem}
+              problem={problem!}
               selectedLanguage={selectedLanguage}
               userAnswer={userAnswer}
               setUserAnswer={setUserAnswer}
@@ -213,8 +220,8 @@ export default function App() {
             transition={{ duration: 0.6, type: "spring" }}
           >
             <ResultScreen
-              problem={problem}
-              evaluationResult={evaluationResult}
+              problem={problem!}
+              evaluationResult={evaluationResult!}
               onNextProblem={isHistoryView ? null : onGenerateProblem}
               onChangeSettings={() => {
                 setStage('setup')

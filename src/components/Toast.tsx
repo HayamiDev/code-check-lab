@@ -32,9 +32,12 @@ export default function Toast({ message, type = 'error', isOpen, onClose }: Toas
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -50, scale: 0.9 }}
           className="fixed top-8 right-8 z-[200] max-w-md"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
         >
           <div className="premium-card p-4 flex items-center gap-3 shadow-2xl">
-            <div className={`w-10 h-10 rounded-full ${colors[type]} flex items-center justify-center flex-shrink-0`}>
+            <div className={`w-10 h-10 rounded-full ${colors[type]} flex items-center justify-center flex-shrink-0`} aria-hidden="true">
               <Icon className="w-5 h-5 text-white" />
             </div>
             <p className="flex-1 text-base font-semibold text-slate-900 dark:text-white">
@@ -43,8 +46,9 @@ export default function Toast({ message, type = 'error', isOpen, onClose }: Toas
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              aria-label="通知を閉じる"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
         </motion.div>

@@ -1,25 +1,13 @@
 import { motion } from 'framer-motion'
 import { getScoreColorClass, getScoreIcon } from '../constants/scoreColors'
-
-interface HistoryEntry {
-  language: string
-  id: number
-  problem: {
-    level: number
-    code: string
-  }
-  evaluationResult: {
-    totalScore: number
-  }
-  timestamp: string
-}
+import { HistoryEntry } from '../types'
 
 interface HistoryEntryCardProps {
   entry: HistoryEntry
   index: number
   isMock: boolean
   onSelect: (entry: HistoryEntry) => void
-  onDelete: (language: string, id: number) => void
+  onDelete: (language: string, id: number | string) => void
 }
 
 function formatDate(timestamp: string) {
@@ -39,6 +27,8 @@ export default function HistoryEntryCard({ entry, index, isMock, onSelect, onDel
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       className="premium-card p-6 hover:scale-[1.01] transition-all duration-300"
+      role="listitem"
+      aria-label={`${entry.language} レベル${entry.problem.level} スコア${entry.evaluationResult.totalScore}点 ${formatDate(entry.timestamp)}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -65,6 +55,7 @@ export default function HistoryEntryCard({ entry, index, isMock, onSelect, onDel
           <button
             onClick={() => onSelect(entry)}
             className="primary-button"
+            aria-label={`${entry.language} レベル${entry.problem.level}の詳細を表示`}
           >
             詳細
           </button>
@@ -72,6 +63,7 @@ export default function HistoryEntryCard({ entry, index, isMock, onSelect, onDel
             <button
               onClick={() => onDelete(entry.language, entry.id)}
               className="danger-button"
+              aria-label={`${entry.language} レベル${entry.problem.level}を削除`}
             >
               削除
             </button>

@@ -1,4 +1,4 @@
-import { Problem, EvaluationResult, Language, Level, HistoryEntry, Theme } from './index'
+import { Problem, EvaluationResult, Language, Level, HistoryEntry, Theme, MockData } from './index'
 
 // SetupScreen Props
 export interface SetupScreenProps {
@@ -45,7 +45,7 @@ export interface MockScreenProps {
   onBack: () => void
   onTestProblem: (problem: Problem, showLoading?: boolean) => void
   onTestResult: (problem: Problem, evaluation: EvaluationResult) => void
-  onTestHistory: (data: any) => void
+  onTestHistory: (data: MockData) => void
 }
 
 // ThemeSelector Props

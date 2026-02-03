@@ -15,6 +15,10 @@ export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, messa
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="dialog-title"
+          aria-describedby="dialog-description"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -24,20 +28,21 @@ export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, messa
             className="premium-card max-w-md w-full p-8"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0" aria-hidden="true">
                 <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-500" />
               </div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+              <h3 id="dialog-title" className="text-xl font-black text-slate-900 dark:text-white">
                 {title}
               </h3>
             </div>
-            <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
+            <p id="dialog-description" className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
               {message}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={onClose}
                 className="flex-1 secondary-button"
+                aria-label="キャンセルしてダイアログを閉じる"
               >
                 キャンセル
               </button>
@@ -47,6 +52,7 @@ export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, messa
                   onClose()
                 }}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 active:scale-95 transition-all"
+                aria-label="削除を確定する"
               >
                 削除
               </button>

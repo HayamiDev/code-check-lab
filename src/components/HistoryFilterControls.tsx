@@ -28,6 +28,8 @@ export default function HistoryFilterControls({
       animate={{ opacity: 1 }}
       transition={{ delay: 0.2 }}
       className="premium-card p-6"
+      role="search"
+      aria-label="フィルターと並び替えコントロール"
     >
       <SectionHeader icon={Filter} className="mb-4">
         フィルター・並び替え
@@ -35,6 +37,7 @@ export default function HistoryFilterControls({
       <div className="mb-0">
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
           <select
+            id="language-filter"
             value={selectedLanguage}
             onChange={(e) => setSelectedLanguage(e.target.value)}
             aria-label="言語でフィルター"
@@ -47,6 +50,7 @@ export default function HistoryFilterControls({
           </select>
 
           <select
+            id="score-filter"
             value={scoreFilter}
             onChange={(e) => setScoreFilter(e.target.value)}
             aria-label="スコアでフィルター"
@@ -59,6 +63,7 @@ export default function HistoryFilterControls({
           </select>
 
           <select
+            id="sort-by"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             aria-label="並び替え"
@@ -72,7 +77,7 @@ export default function HistoryFilterControls({
             <option value="level-asc" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">難易度（低い順）</option>
           </select>
 
-          <div className="sm:ml-auto text-sm text-slate-600 dark:text-slate-400 text-center sm:text-left">
+          <div className="sm:ml-auto text-sm text-slate-600 dark:text-slate-400 text-center sm:text-left" role="status" aria-live="polite" aria-label={`${filteredCount}件の結果を表示中`}>
             {filteredCount}件表示
           </div>
         </div>

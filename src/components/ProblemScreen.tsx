@@ -1,9 +1,21 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronLeft, Send, Info, Code as CodeIcon, AlertCircle } from 'lucide-react'
+import { ChevronLeft, Send, Info, AlertCircle } from 'lucide-react'
 import CodeViewer from './CodeViewer'
 import SectionHeader from './SectionHeader'
 import { useKeyboard } from '../hooks/useKeyboard'
+
+import { Problem, Language } from '../types'
+
+interface ProblemScreenProps {
+  problem: Problem
+  selectedLanguage: Language
+  userAnswer: string
+  setUserAnswer: (answer: string) => void
+  onEvaluate: () => void
+  onBack: () => void
+  isEvaluating: boolean
+}
 
 export default function ProblemScreen({
   problem,
@@ -13,7 +25,7 @@ export default function ProblemScreen({
   onEvaluate,
   onBack,
   isEvaluating
-}) {
+}: ProblemScreenProps) {
   const displayLanguage = problem.language || selectedLanguage
   const textareaRef = useRef(null)
 
@@ -25,15 +37,16 @@ export default function ProblemScreen({
   }, { enabled: true, preventDefault: true })
 
   return (
-    <div className="min-h-screen p-6 sm:p-10 flex flex-col max-w-[1600px] mx-auto space-y-8 pb-10">
+    <div className="min-h-screen p-6 sm:p-10 flex flex-col max-w-[1600px] mx-auto space-y-8 pb-10" role="main">
       {/* Top Navigation & Info */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200/60 dark:border-slate-800/60">
         <div className="space-y-4">
           <button
             onClick={onBack}
             className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-xs uppercase tracking-widest pl-1"
+            aria-label="セットアップ画面に戻る"
           >
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
             セットアップに戻る
           </button>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
@@ -102,17 +115,21 @@ export default function ProblemScreen({
           <div className="flex-1 flex flex-col premium-card p-1 relative group focus-within:ring-2 ring-blue-500/20 transition-all duration-300">
             <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[inherit] -z-10" />
             <div className="flex-1 flex flex-col p-6 space-y-4">
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-bold bg-slate-100/50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
-                <AlertCircle className="w-3 h-3 inline-block mr-1.5 -mt-0.5 text-blue-500" />
+              <p id="review-hint" className="text-xs text-slate-500 dark:text-slate-400 font-bold bg-slate-100/50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+                <AlertCircle className="w-3 h-3 inline-block mr-1.5 -mt-0.5 text-blue-500" aria-hidden="true" />
                 上記のコードで見つけたバグ、設計上の欠陥、セキュリティ問題を説明してください。
               </p>
               <textarea
                 ref={textareaRef}
+                id="review-input"
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
                 className="flex-1 w-full bg-transparent border-none focus:ring-0 p-0 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 resize-none font-medium leading-relaxed text-base"
                 placeholder={`例:\n1. 変数名をより説明的なものに変更すべきです。\n2. ネットワークエラー時の適切なエラーハンドリングがありません...`}
                 spellCheck={false}
+                aria-label="コードレビュー内容を入力"
+                aria-describedby="review-hint"
+                aria-required="true"
               />
             </div>
           </div>
@@ -121,15 +138,17 @@ export default function ProblemScreen({
             onClick={onEvaluate}
             disabled={isEvaluating || !userAnswer.trim()}
             className="primary-button-glow py-5 text-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:shadow-none transition-all w-full"
+            aria-label={isEvaluating ? "レビューを分析中..." : "評価を送信"}
+            aria-disabled={isEvaluating || !userAnswer.trim()}
           >
             {isEvaluating ? (
               <>
-                <div className="w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span>Analying Review...</span>
+                <div className="w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin" role="status" aria-label="分析中"></div>
+                <span aria-live="polite">Analying Review...</span>
               </>
             ) : (
               <>
-                <Send className="w-5 h-5" />
+                <Send className="w-5 h-5" aria-hidden="true" />
                 <span>Submit Evaluation</span>
               </>
             )}

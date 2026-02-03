@@ -28,13 +28,14 @@ export default function IssueAnalysisCard({ issue, index, scoreData }: IssueAnal
       transition={{ delay: 0.1 * index }}
       key={index}
       className="group rounded-2xl border-none overflow-hidden backdrop-blur-xl border border-white/20 dark:border-slate-700 shadow-lg transition-all duration-300 bg-white/80 dark:bg-slate-800 hover:shadow-xl hover:bg-white/90 dark:hover:bg-slate-750"
+      aria-labelledby={`issue-${index}-title`}
     >
-      <summary className="px-6 py-5 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-700/50 flex items-center justify-between list-none transition-colors">
+      <summary className="px-6 py-5 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-700/50 flex items-center justify-between list-none transition-colors" aria-label={`問題 ${index + 1}: ${issue.summary}`}>
         <div className="flex items-center gap-5">
-          <span className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 flex items-center justify-center text-xs font-black font-mono group-open:bg-blue-600 group-open:text-white transition-all shadow-sm ring-1 ring-slate-200 dark:ring-slate-700">
+          <span className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 flex items-center justify-center text-xs font-black font-mono group-open:bg-blue-600 group-open:text-white transition-all shadow-sm ring-1 ring-slate-200 dark:ring-slate-700" aria-hidden="true">
             {index + 1}
           </span>
-          <span className="text-base font-bold text-slate-800 dark:text-slate-100 group-open:text-blue-600 dark:group-open:text-blue-400 transition-colors">
+          <span id={`issue-${index}-title`} className="text-base font-bold text-slate-800 dark:text-slate-100 group-open:text-blue-600 dark:group-open:text-blue-400 transition-colors">
             {issue.summary}
           </span>
         </div>

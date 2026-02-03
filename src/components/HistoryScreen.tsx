@@ -1,28 +1,13 @@
 import { useState, useMemo } from 'react'
 import { ChevronLeft } from 'lucide-react'
-import { getHistory, deleteFromHistory, getTotalCounts } from '../lib/historyStorage'
+import { getHistory, deleteFromHistory } from '../lib/historyStorage'
 import ConfirmDialog from './ConfirmDialog'
 import ScoreChart from './ScoreChart'
 import HistoryFilterControls from './HistoryFilterControls'
 import HistoryEntryCard from './HistoryEntryCard'
+import { HistoryEntry, MockData, HistoryData, Language } from '../types'
 
-interface HistoryEntry {
-  language: string
-  id: number
-  problem: {
-    level: number
-    code: string
-  }
-  evaluationResult: {
-    totalScore: number
-  }
-  timestamp: string
-}
 
-interface MockData {
-  history: HistoryEntry[]
-  counts: Record<string, number>
-}
 
 interface HistoryScreenProps {
   onBack: () => void
@@ -34,8 +19,8 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
   const [selectedLanguage, setSelectedLanguage] = useState('all')
   const [sortBy, setSortBy] = useState('date-desc')
   const [scoreFilter, setScoreFilter] = useState('all')
-  const [history, setHistory] = useState(() => mockData ? {} : getHistory())
-  const [confirmDelete, setConfirmDelete] = useState<{ language: string; id: number } | null>(null)
+  const [history, setHistory] = useState<HistoryData>(() => mockData ? {} : getHistory() as HistoryData)
+  const [confirmDelete, setConfirmDelete] = useState<{ language: string; id: number | string } | null>(null)
 
   // モックデータがある場合はそれを使用
   const isMock = mockData !== null
@@ -52,16 +37,17 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
 
     if (selectedLanguage === 'all') {
       const all: HistoryEntry[] = []
-      Object.entries(history).forEach(([lang, entries]: [string, any[]]) => {
-        entries.forEach(entry => {
-          all.push({ ...entry, language: lang })
+      const entries = Object.entries(history) as [string, HistoryEntry[]][]
+      entries.forEach(([lang, langEntries]) => {
+        langEntries.forEach(entry => {
+          all.push({ ...entry, language: lang as Language })
         })
       })
       return all
     }
-    return ((history as any)[selectedLanguage] || []).map((entry: any) => ({
+    return (history[selectedLanguage as Language] || []).map((entry) => ({
       ...entry,
-      language: selectedLanguage
+      language: selectedLanguage as Language
     }))
   }, [history, selectedLanguage, mockHistory])
 
@@ -95,7 +81,7 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
     }
   }, [scoreFilteredHistory, sortBy])
 
-  const handleDeleteClick = (language: string, id: number) => {
+  const handleDeleteClick = (language: string, id: number | string) => {
     setConfirmDelete({ language, id })
   }
 
@@ -108,7 +94,7 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
   }
 
   return (
-    <div className="min-h-screen p-4 sm:p-8 max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen p-4 sm:p-8 max-w-7xl mx-auto space-y-8" role="main" aria-label="履歴画面">
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -121,8 +107,9 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
         <button
           onClick={onBack}
           className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-sm uppercase tracking-widest"
+          aria-label="セットアップ画面に戻る"
         >
-          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
           戻る
         </button>
       </header>
@@ -144,13 +131,13 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
 
         {/* 履歴一覧 */}
         {filteredHistory.length === 0 ? (
-          <div className="premium-card p-16 text-center">
+          <div className="premium-card p-16 text-center" role="status" aria-live="polite">
             <p className="text-slate-500 dark:text-slate-400 font-medium">
               {baseHistory.length === 0 ? '保存された問題はありません' : '条件に一致する問題はありません'}
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4" role="list" aria-label="履歴リスト">
             {filteredHistory.map((entry, index) => (
               <HistoryEntryCard
                 key={`${entry.language}-${entry.id}`}

@@ -112,11 +112,11 @@ const MOCK_HISTORY = [
 
 export default function MockScreen({ onBack, onTestProblem, onTestResult, onTestHistory }) {
   return (
-    <div className="min-h-screen p-4 sm:p-8 max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen p-4 sm:p-8 max-w-4xl mx-auto space-y-8" role="main" aria-label="開発者向けプレイグラウンド">
       <header className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <Beaker className="w-8 h-8 text-blue-500" />
+            <Beaker className="w-8 h-8 text-blue-500" aria-hidden="true" />
             <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
               Developer Playground
             </h1>
@@ -128,8 +128,9 @@ export default function MockScreen({ onBack, onTestProblem, onTestResult, onTest
         <button
           onClick={onBack}
           className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-sm uppercase tracking-widest"
+          aria-label="セットアップ画面に戻る"
         >
-          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
           Back
         </button>
       </header>
@@ -147,6 +148,7 @@ export default function MockScreen({ onBack, onTestProblem, onTestResult, onTest
             <button
               onClick={() => onTestProblem(MOCK_PROBLEM)}
               className="primary-button w-full"
+              aria-label="問題画面をモックデータで表示"
             >
               問題画面を表示
             </button>
@@ -160,6 +162,7 @@ export default function MockScreen({ onBack, onTestProblem, onTestResult, onTest
               <button
                 onClick={() => onTestResult(MOCK_PROBLEM, MOCK_EVALUATION)}
                 className="primary-button w-full"
+                aria-label="採点結果画面をモックデータで表示"
               >
                 採点結果画面を表示
               </button>
@@ -173,6 +176,7 @@ export default function MockScreen({ onBack, onTestProblem, onTestResult, onTest
               <button
                 onClick={() => onTestHistory({ history: MOCK_HISTORY, counts: MOCK_COUNTS })}
                 className="primary-button w-full"
+                aria-label="過去の問題画面をモックデータで表示"
               >
                 過去の問題画面を表示
               </button>
@@ -188,6 +192,7 @@ export default function MockScreen({ onBack, onTestProblem, onTestResult, onTest
                   onTestProblem(MOCK_PROBLEM, true)
                 }}
                 className="primary-button w-full"
+                aria-label="ローディング表示を2秒間テスト"
               >
                 ローディング表示（2秒）
               </button>

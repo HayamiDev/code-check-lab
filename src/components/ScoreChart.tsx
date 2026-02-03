@@ -16,7 +16,7 @@ interface ScoreChartProps {
 export default function ScoreChart({ data }: ScoreChartProps) {
   if (data.length < 2) {
     return (
-      <div className="h-40 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm">
+      <div className="h-40 flex items-center justify-center text-slate-400 dark:text-slate-500 text-sm" role="status" aria-live="polite">
         グラフ表示には2件以上のデータが必要です
       </div>
     )
@@ -52,14 +52,16 @@ export default function ScoreChart({ data }: ScoreChartProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="mb-8 premium-card p-6"
+      role="region"
+      aria-label="スコア推移グラフ"
     >
       <div className="flex items-center justify-between mb-4">
         <SectionHeader icon={TrendingUp} variant="primary">
           スコア推移
         </SectionHeader>
-        <span className="text-sm text-slate-500 dark:text-slate-400 font-bold">平均: {avg}点</span>
+        <span className="text-sm text-slate-500 dark:text-slate-400 font-bold" aria-label={`平均スコア ${avg}点`}>平均: {avg}点</span>
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-40 mb-3" preserveAspectRatio="xMinYMid meet">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-40 mb-3" preserveAspectRatio="xMinYMid meet" role="img" aria-label="スコア推移を示す折れ線グラフ">
         {/* Y軸グリッドライン */}
         {[0, 25, 50, 75, 100].map(val => {
           const y = paddingY + graphHeight - (val / 100) * graphHeight

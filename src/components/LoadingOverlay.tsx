@@ -8,9 +8,12 @@ export default function LoadingOverlay({ message = '読み込み中...' }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-slate-950/60 backdrop-blur-xl flex items-center justify-center z-[100]"
+      role="status"
+      aria-live="polite"
+      aria-label={message}
     >
       <div className="flex flex-col items-center gap-8">
-        <div className="relative">
+        <div className="relative" aria-hidden="true">
           {/* Animated Spinner circles */}
           <motion.div
             animate={{ rotate: 360 }}
@@ -40,7 +43,7 @@ export default function LoadingOverlay({ message = '読み込み中...' }) {
             {message}
           </motion.p>
 
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5" aria-hidden="true">
             {[0, 1, 2].map(i => (
               <motion.div
                 key={i}

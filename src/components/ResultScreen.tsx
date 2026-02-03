@@ -58,7 +58,7 @@ export default function ResultScreen({
   const displayLanguage = problem.language
 
   return (
-    <div className="min-h-screen p-6 sm:p-10 max-w-7xl mx-auto space-y-12 pb-20">
+    <div className="min-h-screen p-6 sm:p-10 max-w-7xl mx-auto space-y-12 pb-20" role="main" aria-label="評価レポート">
       <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-6 border-b border-slate-200/60 dark:border-slate-800/60">
         <div>
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-2">
@@ -154,13 +154,15 @@ export default function ResultScreen({
             onClick={onNextProblem}
             disabled={isGenerating}
             className="primary-button-glow flex-1 py-5 gap-3 text-lg"
+            aria-label={isGenerating ? "次のセッションを準備中..." : "次のセッションを開始"}
+            aria-disabled={isGenerating}
           >
             {isGenerating ? (
-              <div className="w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin" role="status" aria-label="読み込み中"></div>
             ) : (
               <>
                 <span>Next Session</span>
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5" aria-hidden="true" />
               </>
             )}
           </button>
@@ -168,8 +170,9 @@ export default function ResultScreen({
         <button
           onClick={onChangeSettings}
           className="flex-1 px-8 py-5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-200 dark:hover:bg-slate-800 transition-all border border-slate-200 dark:border-slate-800 flex items-center justify-center gap-3 shadow-sm hover:shadow"
+          aria-label="設定画面に戻る"
         >
-          <Settings className="w-5 h-5" />
+          <Settings className="w-5 h-5" aria-hidden="true" />
           <span>Change Settings</span>
         </button>
       </footer>

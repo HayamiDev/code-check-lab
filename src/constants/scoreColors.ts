@@ -3,7 +3,7 @@
  * @param {number} score - スコア（0-100）
  * @returns {string} Tailwind CSSクラス
  */
-export function getScoreColorClass(score) {
+export function getScoreColorClass(score: number) {
   if (score >= 70) {
     return 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300'
   }
@@ -18,7 +18,7 @@ export function getScoreColorClass(score) {
  * @param {number} score - スコア（0-10）
  * @returns {string} Tailwind CSSクラス
  */
-export function getIssueScoreColorClass(score) {
+export function getIssueScoreColorClass(score: number) {
   if (score >= 8) {
     return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
   }
@@ -33,7 +33,7 @@ export function getIssueScoreColorClass(score) {
  * @param {number} score - スコア（0-100）
  * @returns {string} アイコン文字
  */
-export function getScoreIcon(score) {
+export function getScoreIcon(score: number) {
   if (score >= 70) return '✓'
   if (score >= 50) return '△'
   return '×'
@@ -44,7 +44,7 @@ export function getScoreIcon(score) {
  * @param {number} score - スコア（0-10）
  * @returns {string} アイコン文字
  */
-export function getIssueScoreIcon(score) {
+export function getIssueScoreIcon(score: number) {
   if (score >= 8) return '✓'
   if (score >= 5) return '△'
   return '×'

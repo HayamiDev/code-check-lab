@@ -24,8 +24,10 @@ export default function ScoreCard({ totalScore }: ScoreCardProps) {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       className="premium-card p-8 flex flex-col items-center justify-center text-center space-y-6 lg:col-span-1 border-b-4 border-b-blue-500 dark:border-b-blue-400 relative overflow-hidden"
+      role="region"
+      aria-label="スコアカード"
     >
-      <div className="absolute inset-0 bg-blue-500/5 dark:bg-blue-400/5 z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-blue-500/5 dark:bg-blue-400/5 z-0 pointer-events-none" aria-hidden="true" />
       <div className="relative z-10">
         <motion.div
           initial={{ rotate: -20, scale: 0 }}
@@ -37,18 +39,19 @@ export default function ScoreCard({ totalScore }: ScoreCardProps) {
                 ? 'text-yellow-500 dark:text-yellow-400'
                 : 'text-red-500 dark:text-red-400'
             }`}
+          aria-hidden="true"
         >
           {getScoreIcon(totalScore)}
         </motion.div>
       </div>
       <div className="space-y-2 z-10">
         <div className="flex items-baseline justify-center">
-          <span className="text-7xl sm:text-8xl font-black text-slate-900 dark:text-white tracking-tighter filter drop-shadow-sm">
+          <span className="text-7xl sm:text-8xl font-black text-slate-900 dark:text-white tracking-tighter filter drop-shadow-sm" aria-label={`${totalScore}点`}>
             {totalScore}
           </span>
-          <span className="text-2xl font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">pts</span>
+          <span className="text-2xl font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1" aria-label="ポイント">pts</span>
         </div>
-        <div className="h-1 w-24 bg-gradient-to-r from-transparent via-blue-500 to-transparent mx-auto opacity-50" />
+        <div className="h-1 w-24 bg-gradient-to-r from-transparent via-blue-500 to-transparent mx-auto opacity-50" aria-hidden="true" />
       </div>
       <p className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em] pt-2 z-10">
         正確性スコア

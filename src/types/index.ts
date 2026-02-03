@@ -94,3 +94,9 @@ export type SortBy =
 
 // スコアフィルター
 export type ScoreFilter = 'all' | 'high' | 'mid' | 'low'
+
+// モックデータ構造
+export interface MockData {
+  history: HistoryEntry[]
+  counts: Record<string, number>
+}
