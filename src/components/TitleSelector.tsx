@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Crown, Check, Lock } from 'lucide-react'
 import { Title, getRarityColorClass, getRarityLabel, getRarityGlowClass } from '../lib/badgeSystem'
@@ -10,7 +9,6 @@ interface TitleSelectorProps {
 }
 
 export default function TitleSelector({ titles, selectedTitleId, onSelectTitle }: TitleSelectorProps) {
-  const [hoveredTitleId, setHoveredTitleId] = useState<string | null>(null)
 
   const unlockedTitles = titles.filter(t => t.unlocked)
   const lockedTitles = titles.filter(t => !t.unlocked)
@@ -32,11 +30,10 @@ export default function TitleSelector({ titles, selectedTitleId, onSelectTitle }
       <motion.div
         whileHover={{ scale: 1.02 }}
         onClick={() => onSelectTitle(null)}
-        className={`premium-card p-4 cursor-pointer transition-all ${
-          selectedTitleId === null
-            ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20'
-            : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-        }`}
+        className={`premium-card p-4 cursor-pointer transition-all ${selectedTitleId === null
+          ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20'
+          : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+          }`}
       >
         <div className="flex items-center justify-between">
           <div>
@@ -61,14 +58,11 @@ export default function TitleSelector({ titles, selectedTitleId, onSelectTitle }
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               whileHover={{ scale: 1.02 }}
-              onHoverStart={() => setHoveredTitleId(title.id)}
-              onHoverEnd={() => setHoveredTitleId(null)}
               onClick={() => onSelectTitle(title.id)}
-              className={`premium-card p-5 cursor-pointer transition-all relative ${getRarityGlowClass(title.rarity)} ${
-                selectedTitleId === title.id
-                  ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20'
-                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
-              }`}
+              className={`premium-card p-5 cursor-pointer transition-all relative ${getRarityGlowClass(title.rarity)} ${selectedTitleId === title.id
+                ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20'
+                : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                }`}
             >
               {/* 選択中インジケーター */}
               {selectedTitleId === title.id && (

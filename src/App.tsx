@@ -54,7 +54,7 @@ export default function App() {
     // 初回マウント時に現在のURLからステージを復元
     const path = window.location.pathname
     const stageFromPath = path.replace(/^\/code-check-lab\/?/, '') || 'setup'
-    if (stageFromPath && stageFromPath !== stage) {
+    if (stageFromPath) {
       setStage(stageFromPath as Stage)
     }
 

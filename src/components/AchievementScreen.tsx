@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronLeft, Award, Crown } from 'lucide-react'
 import BadgeCollection from './BadgeCollection'
@@ -47,45 +47,43 @@ const generateMockTitles = (): Title[] => {
 
 export default function AchievementScreen({ onBack, mockMode = false }: AchievementScreenProps) {
   const [activeTab, setActiveTab] = useState<'badges' | 'titles'>('badges')
-  const [badges, setBadges] = useState<Badge[]>([])
-  const [titles, setTitles] = useState<Title[]>([])
-  const [selectedTitleId, setSelectedTitleId] = useState<string | null>(null)
 
-  useEffect(() => {
+  const [badges] = useState<Badge[]>(() => {
     if (mockMode) {
-      // モックデータを使用
-      setBadges(generateMockBadges())
-      setTitles(generateMockTitles())
-      setSelectedTitleId('title_perfectionist')
-    } else {
-      // 実際のデータを読み込み
-      let loadedBadges = loadBadges()
-      let loadedTitles = loadTitles()
-
-      // 初回アクセス時: バッジと称号の定義から初期化
-      if (loadedBadges.length === 0) {
-        loadedBadges = BADGE_DEFINITIONS.map(def => ({
-          ...def,
-          unlocked: false
-        }))
-      }
-      if (loadedTitles.length === 0) {
-        loadedTitles = TITLE_DEFINITIONS.map(def => ({
-          ...def,
-          unlocked: false
-        }))
-      }
-
-      setBadges(loadedBadges)
-      setTitles(loadedTitles)
-
-      // 選択中の称号を読み込み
-      const saved = localStorage.getItem(SELECTED_TITLE_KEY)
-      if (saved) {
-        setSelectedTitleId(saved)
-      }
+      return generateMockBadges()
     }
-  }, [mockMode])
+    let loadedBadges = loadBadges()
+    if (loadedBadges.length === 0) {
+      loadedBadges = BADGE_DEFINITIONS.map(def => ({
+        ...def,
+        unlocked: false
+      }))
+    }
+    return loadedBadges
+  })
+
+  const [titles] = useState<Title[]>(() => {
+    if (mockMode) {
+      return generateMockTitles()
+    }
+    let loadedTitles = loadTitles()
+    if (loadedTitles.length === 0) {
+      loadedTitles = TITLE_DEFINITIONS.map(def => ({
+        ...def,
+        unlocked: false
+      }))
+    }
+    return loadedTitles
+  })
+
+  const [selectedTitleId, setSelectedTitleId] = useState<string | null>(() => {
+    if (mockMode) {
+      return 'title_perfectionist'
+    }
+    return localStorage.getItem(SELECTED_TITLE_KEY)
+  })
+
+
 
   const handleSelectTitle = (titleId: string | null) => {
     setSelectedTitleId(titleId)
@@ -124,11 +122,10 @@ export default function AchievementScreen({ onBack, mockMode = false }: Achievem
       <div className="flex gap-4 border-b-2 border-slate-200 dark:border-slate-800">
         <button
           onClick={() => setActiveTab('badges')}
-          className={`flex items-center gap-2 px-6 py-3 font-black text-sm uppercase tracking-wider transition-all relative ${
-            activeTab === 'badges'
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-          }`}
+          className={`flex items-center gap-2 px-6 py-3 font-black text-sm uppercase tracking-wider transition-all relative ${activeTab === 'badges'
+            ? 'text-blue-600 dark:text-blue-400'
+            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+            }`}
           aria-label="バッジタブ"
           aria-selected={activeTab === 'badges'}
           role="tab"
@@ -146,11 +143,10 @@ export default function AchievementScreen({ onBack, mockMode = false }: Achievem
 
         <button
           onClick={() => setActiveTab('titles')}
-          className={`flex items-center gap-2 px-6 py-3 font-black text-sm uppercase tracking-wider transition-all relative ${
-            activeTab === 'titles'
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-          }`}
+          className={`flex items-center gap-2 px-6 py-3 font-black text-sm uppercase tracking-wider transition-all relative ${activeTab === 'titles'
+            ? 'text-blue-600 dark:text-blue-400'
+            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+            }`}
           aria-label="称号タブ"
           aria-selected={activeTab === 'titles'}
           role="tab"

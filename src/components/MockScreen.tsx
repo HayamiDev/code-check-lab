@@ -2,11 +2,12 @@ import { motion } from 'framer-motion'
 import { ChevronLeft, Beaker } from 'lucide-react'
 import { MOCK_PROBLEM, MOCK_EVALUATION } from '../constants/mockData'
 import { Badge, Title } from '../lib/badgeSystem'
-import { Medal, Target, Crosshair, Diamond, MessageCircle, BookOpen, Brain, Globe, Code2, FileCode, FileJson, Boxes, Hash, Cpu, Terminal, Sparkles, Wrench, Binary, Blocks } from 'lucide-react'
+import { Problem, EvaluationResult, MockData, Language, Level } from '../types'
+import { Medal, Diamond, MessageCircle, BookOpen, Brain, Code2, FileCode, FileJson, Hash, Cpu, Terminal, Sparkles, Wrench, Binary, Blocks } from 'lucide-react'
 
 // より充実したモックヒストリーデータを生成
 const generateMockHistory = () => {
-  const languages = ['Python', 'TypeScript', 'Kotlin', 'JavaScript', 'Go', 'Rust', 'Swift', 'Java']
+  const languages: Language[] = ['Python', 'TypeScript', 'Kotlin', 'JavaScript', 'Go', 'Rust', 'Swift', 'Java']
   const history = []
   const now = Date.now()
 
@@ -54,7 +55,7 @@ const generateMockHistory = () => {
     for (let j = 0; j < sessionsPerDay; j++) {
       totalSessions++
       const language = languages[Math.floor(Math.random() * languages.length)]
-      const level = Math.floor(Math.random() * 11) // 0-10
+      const level = Math.floor(Math.random() * 11) as Level // 0-10
 
       // スコア分布: 高得点が出やすくしてバッジ獲得を可能に
       let score: number
@@ -401,9 +402,9 @@ const MOCK_TITLES: Title[] = [
 
 interface MockScreenProps {
   onBack: () => void
-  onTestProblem: (problem: any, showLoading?: boolean) => void
-  onTestResult: (problem: any, evaluation: any) => void
-  onTestHistory: (mockData: any) => void
+  onTestProblem: (problem: Problem, showLoading?: boolean) => void
+  onTestResult: (problem: Problem, evaluation: EvaluationResult) => void
+  onTestHistory: (mockData: MockData) => void
   onTestBadge: (badge: Badge) => void
   onTestTitle: (title: Title) => void
   onTestAchievements: () => void
@@ -443,81 +444,81 @@ export default function MockScreen({
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="premium-card p-6"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="premium-card p-6"
+        >
+          <h2 className="font-bold text-slate-900 dark:text-white mb-2 text-lg">問題画面</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+            コードレビュー問題の表示・回答入力画面
+          </p>
+          <button
+            onClick={() => onTestProblem(MOCK_PROBLEM as Problem)}
+            className="primary-button w-full"
+            aria-label="問題画面をモックデータで表示"
           >
-            <h2 className="font-bold text-slate-900 dark:text-white mb-2 text-lg">問題画面</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-              コードレビュー問題の表示・回答入力画面
-            </p>
-            <button
-              onClick={() => onTestProblem(MOCK_PROBLEM)}
-              className="primary-button w-full"
-              aria-label="問題画面をモックデータで表示"
-            >
-              問題画面を表示
-            </button>
-          </motion.div>
+            問題画面を表示
+          </button>
+        </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
-              <h2 className="font-semibold text-slate-900 dark:text-white mb-2">採点結果画面</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-                採点結果・フィードバックの表示画面
-              </p>
-              <button
-                onClick={() => onTestResult(MOCK_PROBLEM, MOCK_EVALUATION)}
-                className="primary-button w-full"
-                aria-label="採点結果画面をモックデータで表示"
-              >
-                採点結果画面を表示
-              </button>
-            </motion.div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
+          <h2 className="font-semibold text-slate-900 dark:text-white mb-2">採点結果画面</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+            採点結果・フィードバックの表示画面
+          </p>
+          <button
+            onClick={() => onTestResult(MOCK_PROBLEM as Problem, MOCK_EVALUATION as EvaluationResult)}
+            className="primary-button w-full"
+            aria-label="採点結果画面をモックデータで表示"
+          >
+            採点結果画面を表示
+          </button>
+        </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
-              <h2 className="font-semibold text-slate-900 dark:text-white mb-2">過去の問題画面</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-                履歴一覧の表示画面（モックデータ）
-              </p>
-              <button
-                onClick={() => onTestHistory({ history: MOCK_HISTORY, counts: MOCK_COUNTS })}
-                className="primary-button w-full"
-                aria-label="過去の問題画面をモックデータで表示"
-              >
-                過去の問題画面を表示
-              </button>
-            </motion.div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
+          <h2 className="font-semibold text-slate-900 dark:text-white mb-2">過去の問題画面</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+            履歴一覧の表示画面（モックデータ）
+          </p>
+          <button
+            onClick={() => onTestHistory({ history: MOCK_HISTORY, counts: MOCK_COUNTS })}
+            className="primary-button w-full"
+            aria-label="過去の問題画面をモックデータで表示"
+          >
+            過去の問題画面を表示
+          </button>
+        </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="premium-card p-6">
-              <h2 className="font-semibold text-slate-900 dark:text-white mb-2">バッジ・称号画面</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-                実績コレクションの表示画面（モックデータ）
-              </p>
-              <button
-                onClick={onTestAchievements}
-                className="primary-button w-full"
-                aria-label="バッジ・称号画面をモックデータで表示"
-              >
-                バッジ・称号画面を表示
-              </button>
-            </motion.div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="premium-card p-6">
+          <h2 className="font-semibold text-slate-900 dark:text-white mb-2">バッジ・称号画面</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+            実績コレクションの表示画面（モックデータ）
+          </p>
+          <button
+            onClick={onTestAchievements}
+            className="primary-button w-full"
+            aria-label="バッジ・称号画面をモックデータで表示"
+          >
+            バッジ・称号画面を表示
+          </button>
+        </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
-              <h2 className="font-semibold text-slate-900 dark:text-white mb-2">ローディング</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-                ローディングオーバーレイの表示確認
-              </p>
-              <button
-                onClick={async () => {
-                  onTestProblem(MOCK_PROBLEM, true)
-                }}
-                className="primary-button w-full"
-                aria-label="ローディング表示を2秒間テスト"
-              >
-                ローディング表示（2秒）
-              </button>
-            </motion.div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
+          <h2 className="font-semibold text-slate-900 dark:text-white mb-2">ローディング</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+            ローディングオーバーレイの表示確認
+          </p>
+          <button
+            onClick={async () => {
+              onTestProblem(MOCK_PROBLEM as Problem, true)
+            }}
+            className="primary-button w-full"
+            aria-label="ローディング表示を2秒間テスト"
+          >
+            ローディング表示（2秒）
+          </button>
+        </motion.div>
       </div>
 
       <div className="mt-8">

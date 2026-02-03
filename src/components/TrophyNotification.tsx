@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Badge, Title, getRarityColorClass, getRarityLabel } from '../lib/badgeSystem'
 
@@ -25,18 +25,27 @@ interface TrophyNotificationProps {
 
 export default function TrophyNotification({ badge, title, onClose }: TrophyNotificationProps) {
   const [isVisible, setIsVisible] = useState(true)
-  const [soundPlayed, setSoundPlayed] = useState(false)
 
   const item = badge || title
   const isBadge = !!badge
+
+  // パーティクルの初期位置を管理
+  const [particles] = useState<{ x: number; y: number }[]>(() =>
+    [...Array(20)].map(() => ({
+      x: Math.random() * 400 - 200,
+      y: Math.random() * 200 - 100
+    }))
+  )
+
+  const soundPlayedRef = useRef(false)
 
   useEffect(() => {
     if (!item) return
 
     // PlayStation風の効果音（ビープ音）を鳴らす
-    if (!soundPlayed) {
+    if (!soundPlayedRef.current) {
       playTrophySound(item.rarity)
-      setSoundPlayed(true)
+      soundPlayedRef.current = true
     }
 
     // 5秒後に自動で閉じる
@@ -46,7 +55,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
     }, 5000)
 
     return () => clearTimeout(timer)
-  }, [item, onClose, soundPlayed])
+  }, [item, onClose])
 
   if (!item) return null
 
@@ -161,7 +170,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
             {/* パーティクル効果 */}
             {item.rarity === 'legendary' && (
               <>
-                {[...Array(20)].map((_, i) => (
+                {particles.map((p, i) => (
                   <motion.div
                     key={i}
                     initial={{
@@ -171,8 +180,8 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
                       opacity: 1
                     }}
                     animate={{
-                      x: Math.random() * 400 - 200,
-                      y: Math.random() * 200 - 100,
+                      x: p.x,
+                      y: p.y,
                       scale: [0, 1, 0],
                       opacity: [1, 1, 0]
                     }}
@@ -219,6 +228,7 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
 function playTrophySound(rarity: string) {
   if (typeof window === 'undefined' || !window.AudioContext) return
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
   const oscillator = audioContext.createOscillator()
   const gainNode = audioContext.createGain()

@@ -7,7 +7,7 @@ import {
   MessageCircle, BookOpen, Brain, Globe,
   Pencil, Laptop, Glasses,
   Mountain, Flag, Swords, Skull,
-  Code2, Sparkles, Binary, FileCode, Terminal, Database, Boxes, Cpu, Hash, FileJson, Wrench, Blocks
+  Code2, Sparkles, Binary, FileCode, Terminal, Boxes, Cpu, Hash, FileJson, Wrench, Blocks
 } from 'lucide-react'
 
 // ストリークデータの型定義（ストリーク機能は別ブランチだが、バッジシステムで使用）
