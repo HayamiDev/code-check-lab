@@ -60,7 +60,7 @@ export default function ProblemScreen({
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="premium-card p-6 bg-amber-50/50 dark:bg-amber-900/10 border-amber-200/50 dark:border-amber-700/30"
+              className="premium-card p-6 bg-amber-50/80 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700/50"
             >
               <SectionHeader icon={Info} variant="accent" className="text-amber-700 dark:text-amber-400 mb-3">
                 前提条件・コンテキスト
@@ -88,10 +88,10 @@ export default function ProblemScreen({
             <SectionHeader icon={AlertCircle}>
               あなたのレビュー
             </SectionHeader>
-            <div className="flex items-center gap-2 opacity-50">
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px]">Ctrl</kbd>
-              <span>+</span>
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px]">Enter</kbd>
+            <div className="flex items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-[11px] font-semibold border border-slate-300 dark:border-slate-700">Ctrl</kbd>
+              <span className="text-slate-900 dark:text-slate-100 text-[11px]">+</span>
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-[11px] font-semibold border border-slate-300 dark:border-slate-700">Enter</kbd>
             </div>
           </div>
 

@@ -19,7 +19,7 @@ export default function SectionHeader({
   className = ''
 }: SectionHeaderProps) {
   const variants = {
-    default: 'text-slate-500 dark:text-slate-500',
+    default: 'text-slate-600 dark:text-slate-400',
     primary: 'text-blue-500',
     secondary: 'text-purple-500',
     accent: 'text-amber-500'

@@ -42,7 +42,11 @@
   }
 
   .dark .premium-card {
-    background: rgba(2, 6, 23, 0.4);
+    background: rgba(30, 41, 59, 0.6);
+  }
+
+  .dark .premium-card {
+    border-color: rgba(148, 163, 184, 0.15);
   }
 
   .premium-card::before {
@@ -78,11 +82,11 @@
   }
 
   .secondary-button {
-    @apply px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm;
+    @apply px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg font-medium hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors text-sm border border-slate-300 dark:border-slate-600;
   }
 
   .danger-button {
-    @apply px-3 py-1 text-sm bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-900 transition-colors;
+    @apply px-3 py-1 text-sm bg-red-100 dark:bg-red-900/70 text-red-700 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors border border-red-300 dark:border-red-700;
   }
 
   .ghost-button {
@@ -95,8 +99,9 @@
 
   /* Scan Effect for evaluation */
   .scan-animation {
-    @apply absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50 z-20 pointer-events-none;
+    @apply absolute left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-70 z-20 pointer-events-none;
     animation: scan 2s linear infinite;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
   }
 }
 

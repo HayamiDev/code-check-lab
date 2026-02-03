@@ -37,7 +37,7 @@ export default function Toast({ message, type = 'error', isOpen, onClose }: Toas
             <div className={`w-10 h-10 rounded-full ${colors[type]} flex items-center justify-center flex-shrink-0`}>
               <Icon className="w-5 h-5 text-white" />
             </div>
-            <p className="flex-1 text-sm font-medium text-slate-900 dark:text-white">
+            <p className="flex-1 text-base font-semibold text-slate-900 dark:text-white">
               {message}
             </p>
             <button

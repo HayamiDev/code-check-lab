@@ -77,7 +77,7 @@ export default function SetupScreen({
                     <option key={lang} value={lang} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">{lang}</option>
                   ))}
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 text-slate-900 dark:text-slate-100">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function SetupScreen({
           <div className="flex items-center justify-center pt-8 border-t border-slate-200 dark:border-slate-800/50">
             <button
               onClick={onShowMock}
-              className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 hover:text-blue-500 transition-colors"
+              className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             >
               <Beaker className="w-3 h-3" />
               Developer Playground

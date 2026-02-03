@@ -83,7 +83,8 @@ function ScoreChart({ data }) {
                 textAnchor="end"
                 fill="currentColor"
                 className="text-slate-500 dark:text-slate-300"
-                fontSize="9"
+                fontSize="11"
+                fontWeight="600"
               >
                 {val}
               </text>
@@ -134,15 +135,15 @@ function ScoreChart({ data }) {
       <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
         <div className="flex items-center gap-1">
           <div className="w-6 h-0.5 bg-green-400"></div>
-          <span className="text-slate-600 dark:text-slate-400">70点ライン（合格）</span>
+          <span className="text-slate-600 dark:text-slate-300 font-semibold">70点ライン（合格）</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-6 h-0.5 bg-yellow-400"></div>
-          <span className="text-slate-600 dark:text-slate-400">50点ライン</span>
+          <span className="text-slate-600 dark:text-slate-300 font-semibold">50点ライン</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 rounded-full bg-blue-600 dark:bg-blue-300"></div>
-          <span className="text-slate-600 dark:text-slate-400">あなたのスコア</span>
+          <span className="text-slate-600 dark:text-slate-300 font-semibold">あなたのスコア</span>
         </div>
       </div>
     </motion.div>
@@ -352,7 +353,7 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
                           <span>{getScoreIcon(entry.evaluationResult.totalScore)}</span>
                           <span>{entry.evaluationResult.totalScore}点</span>
                         </span>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                        <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                           {formatDate(entry.timestamp)}
                         </span>
                       </div>
