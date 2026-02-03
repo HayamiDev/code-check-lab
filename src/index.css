@@ -1,6 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Inter, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
 
 @layer base {
   :root {
@@ -10,7 +13,9 @@
   }
 
   body {
-    @apply min-h-screen transition-colors duration-700 overflow-x-hidden antialiased;
+    @apply min-h-screen antialiased;
+    transition: color 700ms;
+    overflow-x: hidden;
     background: fixed;
   }
 
