@@ -1,10 +1,13 @@
 import { useState, useMemo } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { getHistory, deleteFromHistory } from '../lib/historyStorage'
+import { getStreakData, generateHeatmapData, calculateStreakFromHistory } from '../lib/streakStorage'
 import ConfirmDialog from './ConfirmDialog'
 import ScoreChart from './ScoreChart'
 import HistoryFilterControls from './HistoryFilterControls'
 import HistoryEntryCard from './HistoryEntryCard'
+import StreakDisplay from './StreakDisplay'
+import ActivityHeatmap from './ActivityHeatmap'
 import { HistoryEntry, MockData, HistoryData, Language } from '../types'
 
 
@@ -25,6 +28,29 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
   // モックデータがある場合はそれを使用
   const isMock = mockData !== null
   const mockHistory = mockData?.history || null
+
+  // 全履歴データを取得（ヒートマップとストリーク計算用）
+  const allHistoryForHeatmap = useMemo(() => {
+    if (mockHistory) return mockHistory
+    const all: HistoryEntry[] = []
+    const entries = Object.entries(history) as [string, HistoryEntry[]][]
+    entries.forEach(([lang, langEntries]) => {
+      langEntries.forEach(entry => {
+        all.push({ ...entry, language: lang as Language })
+      })
+    })
+    return all
+  }, [history, mockHistory])
+
+  // ストリークデータとヒートマップデータを取得
+  const streakData = useMemo(() => {
+    if (isMock) {
+      return calculateStreakFromHistory(allHistoryForHeatmap)
+    }
+    return getStreakData()
+  }, [isMock, allHistoryForHeatmap])
+
+  const heatmapData = useMemo(() => generateHeatmapData(allHistoryForHeatmap), [allHistoryForHeatmap])
 
   // 言語でフィルタした基本データ
   const baseHistory = useMemo(() => {
@@ -115,6 +141,17 @@ export default function HistoryScreen({ onBack, onSelectProblem, mockData = null
       </header>
 
       <div className="space-y-8">
+        {/* ストリーク表示 */}
+        <StreakDisplay streakData={streakData} />
+
+        {/* アクティビティヒートマップ */}
+        {baseHistory.length > 0 && (
+          <div className="premium-card p-6">
+            <h2 className="text-lg font-black text-slate-900 dark:text-white mb-4">Activity Heatmap</h2>
+            <ActivityHeatmap data={heatmapData} />
+          </div>
+        )}
+
         {/* スコア推移グラフ */}
         {baseHistory.length > 0 && <ScoreChart data={baseHistory} />}
 
