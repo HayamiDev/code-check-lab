@@ -1,5 +1,12 @@
 import { HistoryEntry } from '../types'
-import { StreakData } from './streakStorage'
+
+// ストリークデータの型定義（ストリーク機能は別ブランチだが、バッジシステムで使用）
+export interface StreakData {
+  currentStreak: number
+  longestStreak: number
+  lastSessionDate: string | null
+  totalSessions: number
+}
 
 // バッジの種類
 export type BadgeCategory = 'streak' | 'score' | 'language' | 'session' | 'perfect' | 'level'
@@ -43,52 +50,16 @@ export interface Title {
 
 // バッジ定義リスト
 export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
-  // ストリークバッジ
-  {
-    id: 'streak_3',
-    name: 'Getting Started',
-    description: '3日連続で学習',
-    category: 'streak',
-    rarity: 'common',
-    icon: '🔥',
-    condition: (data) => data.streakData.currentStreak >= 3
-  },
-  {
-    id: 'streak_7',
-    name: 'Week Warrior',
-    description: '7日連続で学習',
-    category: 'streak',
-    rarity: 'rare',
-    icon: '🔥',
-    condition: (data) => data.streakData.currentStreak >= 7
-  },
-  {
-    id: 'streak_14',
-    name: 'Two Week Hero',
-    description: '14日連続で学習',
-    category: 'streak',
-    rarity: 'epic',
-    icon: '🔥',
-    condition: (data) => data.streakData.currentStreak >= 14
-  },
-  {
-    id: 'streak_30',
-    name: 'Monthly Master',
-    description: '30日連続で学習',
-    category: 'streak',
-    rarity: 'legendary',
-    icon: '🔥',
-    condition: (data) => data.streakData.currentStreak >= 30
-  },
-  {
-    id: 'streak_100',
-    name: 'Centurion',
-    description: '100日連続で学習',
-    category: 'streak',
-    rarity: 'legendary',
-    icon: '👑',
-    condition: (data) => data.streakData.currentStreak >= 100
-  },
+  // ストリークバッジ（別ブランチ機能なので現在は無効化）
+  // {
+  //   id: 'streak_3',
+  //   name: 'Getting Started',
+  //   description: '3日連続で学習',
+  //   category: 'streak',
+  //   rarity: 'common',
+  //   icon: '🔥',
+  //   condition: (data) => data.streakData.currentStreak >= 3
+  // },
 
   // スコアバッジ
   {
@@ -273,13 +244,6 @@ export const TITLE_DEFINITIONS: Omit<Title, 'unlocked' | 'unlockedAt'>[] = [
     requiredBadges: [] // 任意の1つのバッジ
   },
   {
-    id: 'title_dedicated',
-    name: '熱心な学習者',
-    description: '1週間連続で学習',
-    rarity: 'rare',
-    requiredBadges: ['streak_7']
-  },
-  {
     id: 'title_perfectionist',
     name: '完璧主義者',
     description: '初めての満点を達成',
@@ -303,16 +267,16 @@ export const TITLE_DEFINITIONS: Omit<Title, 'unlocked' | 'unlockedAt'>[] = [
   {
     id: 'title_master',
     name: 'コードレビューマスター',
-    description: '30日連続学習 & 100回セッション & 5言語制覇',
+    description: '100回セッション & 5言語制覇',
     rarity: 'legendary',
-    requiredBadges: ['streak_30', 'session_100', 'lang_5']
+    requiredBadges: ['session_100', 'lang_5']
   },
   {
     id: 'title_legend',
     name: '伝説のレビュアー',
-    description: '100日連続 & 200回セッション & 全言語制覇',
+    description: '200回セッション & 全言語制覇',
     rarity: 'legendary',
-    requiredBadges: ['streak_100', 'session_200', 'lang_12']
+    requiredBadges: ['session_200', 'lang_12']
   },
   {
     id: 'title_flawless',

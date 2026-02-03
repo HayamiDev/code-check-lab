@@ -8,9 +8,11 @@ import ThemeSelector from './components/ThemeSelector'
 import LoadingOverlay from './components/LoadingOverlay'
 import MockScreen from './components/MockScreen'
 import Toast from './components/Toast'
+import AchievementScreen from './components/AchievementScreen'
+import TrophyNotification from './components/TrophyNotification'
 import { generateProblem, evaluateAnswer } from './api/claude'
-import { saveToHistory } from './lib/historyStorage'
-import { updateStreak } from './lib/streakStorage'
+import { saveToHistory, getHistory } from './lib/historyStorage'
+import { updateBadgesAndTitles, Badge, Title } from './lib/badgeSystem'
 import { MOCK_EVALUATION } from './constants/mockData'
 import { useTheme } from './hooks/useTheme'
 import { useToast } from './hooks/useToast'
@@ -36,6 +38,16 @@ export default function App() {
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false)
   const [mockHistoryData, setMockHistoryData] = useState<MockData | null>(null)
   const [isMockMode, setIsMockMode] = useState<boolean>(false)
+  const [trophyQueue, setTrophyQueue] = useState<Array<{ badge?: Badge; title?: Title }>>([])
+  const [currentTrophy, setCurrentTrophy] = useState<{ badge?: Badge; title?: Title } | null>(null)
+
+  // トロフィーキューの処理
+  useEffect(() => {
+    if (trophyQueue.length > 0 && !currentTrophy) {
+      setCurrentTrophy(trophyQueue[0])
+      setTrophyQueue(prev => prev.slice(1))
+    }
+  }, [trophyQueue, currentTrophy])
 
   // 仮想ページビューの計測
   useEffect(() => {
@@ -77,8 +89,25 @@ export default function App() {
         const result = await evaluateAnswer(problem, userAnswer)
         setEvaluationResult(result)
         saveToHistory(problem.language || selectedLanguage, problem, userAnswer, result)
-        // ストリークを更新
-        updateStreak()
+
+        // バッジと称号をチェック
+        const allHistory = getHistory()
+        const dummyStreakData = {
+          currentStreak: 0,
+          longestStreak: 0,
+          lastSessionDate: null,
+          totalSessions: allHistory.length
+        }
+        const { newBadges, newTitles } = updateBadgesAndTitles(dummyStreakData, allHistory)
+
+        // 新規獲得したバッジと称号をキューに追加
+        const newTrophies: Array<{ badge?: Badge; title?: Title }> = [
+          ...newBadges.map(badge => ({ badge })),
+          ...newTitles.map(title => ({ title }))
+        ]
+        if (newTrophies.length > 0) {
+          setTrophyQueue(prev => [...prev, ...newTrophies])
+        }
       }
       setStage('result')
     } catch (error) {
@@ -144,6 +173,7 @@ export default function App() {
               onGenerateProblem={onGenerateProblem}
               onShowHistory={() => setStage('history')}
               onShowMock={() => setStage('mock')}
+              onShowAchievements={() => setStage('achievement')}
               isGenerating={isGenerating}
             />
           </motion.div>
@@ -235,6 +265,17 @@ export default function App() {
             />
           </motion.div>
         )
+      case 'achievement':
+        return (
+          <motion.div
+            key="achievement"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <AchievementScreen onBack={() => setStage('setup')} />
+          </motion.div>
+        )
       default:
         return null
     }
@@ -249,6 +290,13 @@ export default function App() {
       </AnimatePresence>
       {isGenerating && <LoadingOverlay message="問題を生成中..." />}
       {isEvaluating && <LoadingOverlay message="回答を評価中..." />}
+      {currentTrophy && (
+        <TrophyNotification
+          badge={currentTrophy.badge}
+          title={currentTrophy.title}
+          onClose={() => setCurrentTrophy(null)}
+        />
+      )}
     </div>
   )
 }
