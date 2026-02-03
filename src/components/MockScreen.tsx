@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+import { ChevronLeft, Beaker } from 'lucide-react'
 import { MOCK_PROBLEM, MOCK_EVALUATION } from '../constants/mockData'
 
 const MOCK_COUNTS = {
@@ -110,79 +112,91 @@ const MOCK_HISTORY = [
 
 export default function MockScreen({ onBack, onTestProblem, onTestResult, onTestHistory }) {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">テストモード</h1>
-            <button
-              onClick={onBack}
-              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium"
-            >
-              ← 戻る
-            </button>
+    <div className="min-h-screen p-4 sm:p-8 max-w-4xl mx-auto space-y-8" role="main" aria-label="開発者向けプレイグラウンド">
+      <header className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <Beaker className="w-8 h-8 text-blue-500" aria-hidden="true" />
+            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+              Developer Playground
+            </h1>
           </div>
-
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            API呼び出しなしで各画面の表示を確認できます
+          <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">
+            API呼び出しなしでUIコンポーネントをテスト
           </p>
+        </div>
+        <button
+          onClick={onBack}
+          className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-sm uppercase tracking-widest"
+          aria-label="セットアップ画面に戻る"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
+          Back
+        </button>
+      </header>
 
-          <div className="space-y-4">
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-              <h2 className="font-semibold text-gray-900 dark:text-white mb-2">問題画面</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                コードレビュー問題の表示・回答入力画面
-              </p>
-              <button
-                onClick={() => onTestProblem(MOCK_PROBLEM)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-              >
-                問題画面を表示
-              </button>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="premium-card p-6"
+          >
+            <h2 className="font-bold text-slate-900 dark:text-white mb-2 text-lg">問題画面</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+              コードレビュー問題の表示・回答入力画面
+            </p>
+            <button
+              onClick={() => onTestProblem(MOCK_PROBLEM)}
+              className="primary-button w-full"
+              aria-label="問題画面をモックデータで表示"
+            >
+              問題画面を表示
+            </button>
+          </motion.div>
 
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-              <h2 className="font-semibold text-gray-900 dark:text-white mb-2">採点結果画面</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
+              <h2 className="font-semibold text-slate-900 dark:text-white mb-2">採点結果画面</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
                 採点結果・フィードバックの表示画面
               </p>
               <button
                 onClick={() => onTestResult(MOCK_PROBLEM, MOCK_EVALUATION)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                className="primary-button w-full"
+                aria-label="採点結果画面をモックデータで表示"
               >
                 採点結果画面を表示
               </button>
-            </div>
+            </motion.div>
 
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-              <h2 className="font-semibold text-gray-900 dark:text-white mb-2">過去の問題画面</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
+              <h2 className="font-semibold text-slate-900 dark:text-white mb-2">過去の問題画面</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
                 履歴一覧の表示画面（モックデータ）
               </p>
               <button
                 onClick={() => onTestHistory({ history: MOCK_HISTORY, counts: MOCK_COUNTS })}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                className="primary-button w-full"
+                aria-label="過去の問題画面をモックデータで表示"
               >
                 過去の問題画面を表示
               </button>
-            </div>
+            </motion.div>
 
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-              <h2 className="font-semibold text-gray-900 dark:text-white mb-2">ローディング</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-card p-6">
+              <h2 className="font-semibold text-slate-900 dark:text-white mb-2">ローディング</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
                 ローディングオーバーレイの表示確認
               </p>
               <button
                 onClick={async () => {
                   onTestProblem(MOCK_PROBLEM, true)
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                className="primary-button w-full"
+                aria-label="ローディング表示を2秒間テスト"
               >
                 ローディング表示（2秒）
               </button>
-            </div>
-          </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   )
