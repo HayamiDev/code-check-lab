@@ -154,6 +154,14 @@ export default function App() {
     setStage('mock-history')
   }
 
+  const handleTestBadge = (badge: Badge) => {
+    setTrophyQueue(prev => [...prev, { badge }])
+  }
+
+  const handleTestTitle = (title: Title) => {
+    setTrophyQueue(prev => [...prev, { title }])
+  }
+
   const renderScreen = () => {
     switch (stage) {
       case 'setup':
@@ -191,6 +199,8 @@ export default function App() {
               onTestProblem={handleTestProblem}
               onTestResult={handleTestResult}
               onTestHistory={handleTestHistory}
+              onTestBadge={handleTestBadge}
+              onTestTitle={handleTestTitle}
             />
           </motion.div>
         )
