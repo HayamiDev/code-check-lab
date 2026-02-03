@@ -44,10 +44,10 @@ export default function ProblemScreen({
           <button
             onClick={onBack}
             className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors font-bold text-xs uppercase tracking-widest pl-1"
-            aria-label="セットアップ画面に戻る"
+            aria-label="戻る"
           >
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" aria-hidden="true" />
-            セットアップに戻る
+            Back
           </button>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
             Review Session
