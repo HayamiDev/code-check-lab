@@ -339,7 +339,7 @@ export default function App() {
   }
 
   return (
-    <div className="selection:bg-blue-500/30">
+    <div>
       <ThemeSelector theme={theme} setTheme={setTheme} />
       <Toast {...toast} onClose={hideToast} />
       <AnimatePresence mode="wait">

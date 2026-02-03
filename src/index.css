@@ -10,7 +10,7 @@
   }
 
   body {
-    @apply min-h-screen transition-colors duration-700 overflow-x-hidden antialiased selection:bg-blue-500/30;
+    @apply min-h-screen transition-colors duration-700 overflow-x-hidden antialiased;
     background: fixed;
   }
 
