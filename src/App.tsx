@@ -8,8 +8,11 @@ import ThemeSelector from './components/ThemeSelector'
 import LoadingOverlay from './components/LoadingOverlay'
 import MockScreen from './components/MockScreen'
 import Toast from './components/Toast'
+import AchievementScreen from './components/AchievementScreen'
+import TrophyNotification from './components/TrophyNotification'
 import { generateProblem, evaluateAnswer } from './api/claude'
-import { saveToHistory } from './lib/historyStorage'
+import { saveToHistory, getAllHistoryEntries } from './lib/historyStorage'
+import { updateBadgesAndTitles, Badge, Title } from './lib/badgeSystem'
 import { MOCK_EVALUATION } from './constants/mockData'
 import { useTheme } from './hooks/useTheme'
 import { useToast } from './hooks/useToast'
@@ -25,7 +28,7 @@ export default function App() {
   const [theme, setTheme] = useTheme()
   const { toast, showToast, hideToast } = useToast()
   const [stage, setStage] = useState<Stage>('setup')
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>('Kotlin')
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('Python')
   const [selectedLevel, setSelectedLevel] = useState<Level>(5)
   const [problem, setProblem] = useState<Problem | null>(null)
   const [userAnswer, setUserAnswer] = useState<string>('')
@@ -35,6 +38,47 @@ export default function App() {
   const [isEvaluating, setIsEvaluating] = useState<boolean>(false)
   const [mockHistoryData, setMockHistoryData] = useState<MockData | null>(null)
   const [isMockMode, setIsMockMode] = useState<boolean>(false)
+  const [trophyQueue, setTrophyQueue] = useState<Array<{ badge?: Badge; title?: Title }>>([])
+  const [currentTrophy, setCurrentTrophy] = useState<{ badge?: Badge; title?: Title } | null>(null)
+
+  // ブラウザの戻る/進むボタンでステージ変更に対応
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.stage) {
+        setStage(event.state.stage)
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+
+    // 初回マウント時に現在のURLからステージを復元
+    const path = window.location.pathname
+    const stageFromPath = path.replace(/^\/code-check-lab\/?/, '') || 'setup'
+    if (stageFromPath) {
+      setStage(stageFromPath as Stage)
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  // ステージ変更時にブラウザ履歴を更新
+  useEffect(() => {
+    const baseUrl = '/code-check-lab'
+    const url = stage === 'setup' ? baseUrl : `${baseUrl}/${stage}`
+
+    // 現在のURLと異なる場合のみ履歴を追加
+    if (window.location.pathname !== url) {
+      window.history.pushState({ stage }, '', url)
+    }
+  }, [stage])
+
+  // トロフィーキューの処理
+  useEffect(() => {
+    if (trophyQueue.length > 0 && !currentTrophy) {
+      setCurrentTrophy(trophyQueue[0])
+      setTrophyQueue(prev => prev.slice(1))
+    }
+  }, [trophyQueue, currentTrophy])
 
   // 仮想ページビューの計測
   useEffect(() => {
@@ -76,6 +120,25 @@ export default function App() {
         const result = await evaluateAnswer(problem, userAnswer)
         setEvaluationResult(result)
         saveToHistory(problem.language || selectedLanguage, problem, userAnswer, result)
+
+        // バッジと称号をチェック
+        const allHistory = getAllHistoryEntries()
+        const dummyStreakData = {
+          currentStreak: 0,
+          longestStreak: 0,
+          lastSessionDate: null,
+          totalSessions: allHistory.length
+        }
+        const { newBadges, newTitles } = updateBadgesAndTitles(dummyStreakData, allHistory)
+
+        // 新規獲得したバッジと称号をキューに追加
+        const newTrophies: Array<{ badge?: Badge; title?: Title }> = [
+          ...newBadges.map(badge => ({ badge })),
+          ...newTitles.map(title => ({ title }))
+        ]
+        if (newTrophies.length > 0) {
+          setTrophyQueue(prev => [...prev, ...newTrophies])
+        }
       }
       setStage('result')
     } catch (error) {
@@ -122,6 +185,18 @@ export default function App() {
     setStage('mock-history')
   }
 
+  const handleTestBadge = (badge: Badge) => {
+    setTrophyQueue(prev => [...prev, { badge }])
+  }
+
+  const handleTestTitle = (title: Title) => {
+    setTrophyQueue(prev => [...prev, { title }])
+  }
+
+  const handleTestAchievements = () => {
+    setStage('mock-achievement')
+  }
+
   const renderScreen = () => {
     switch (stage) {
       case 'setup':
@@ -141,6 +216,7 @@ export default function App() {
               onGenerateProblem={onGenerateProblem}
               onShowHistory={() => setStage('history')}
               onShowMock={() => setStage('mock')}
+              onShowAchievements={() => setStage('achievement')}
               isGenerating={isGenerating}
             />
           </motion.div>
@@ -158,6 +234,9 @@ export default function App() {
               onTestProblem={handleTestProblem}
               onTestResult={handleTestResult}
               onTestHistory={handleTestHistory}
+              onTestBadge={handleTestBadge}
+              onTestTitle={handleTestTitle}
+              onTestAchievements={handleTestAchievements}
             />
           </motion.div>
         )
@@ -232,6 +311,28 @@ export default function App() {
             />
           </motion.div>
         )
+      case 'achievement':
+        return (
+          <motion.div
+            key="achievement"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <AchievementScreen onBack={() => setStage('setup')} />
+          </motion.div>
+        )
+      case 'mock-achievement':
+        return (
+          <motion.div
+            key="mock-achievement"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <AchievementScreen onBack={() => setStage('mock')} mockMode={true} />
+          </motion.div>
+        )
       default:
         return null
     }
@@ -246,6 +347,13 @@ export default function App() {
       </AnimatePresence>
       {isGenerating && <LoadingOverlay message="問題を生成中..." />}
       {isEvaluating && <LoadingOverlay message="回答を評価中..." />}
+      {currentTrophy && (
+        <TrophyNotification
+          badge={currentTrophy.badge}
+          title={currentTrophy.title}
+          onClose={() => setCurrentTrophy(null)}
+        />
+      )}
     </div>
   )
 }

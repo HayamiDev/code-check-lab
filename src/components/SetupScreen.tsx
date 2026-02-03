@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Code2, Trophy, History, Beaker, Play, ChevronDown, Check, Info, X, ExternalLink, AlertTriangle, Zap, Shield, Brain, Layers } from 'lucide-react'
+import { Code2, Trophy, History, Beaker, Play, ChevronDown, Check, Info, X, ExternalLink, AlertTriangle, Zap, Shield, Brain, Layers, Award } from 'lucide-react'
 import { LANGUAGES, LANGUAGE_DESCRIPTIONS } from '../constants/languages'
 import { useKeyboard } from '../hooks/useKeyboard'
 
@@ -28,6 +28,7 @@ interface SetupScreenProps {
   onGenerateProblem: () => void
   onShowHistory: () => void
   onShowMock: () => void
+  onShowAchievements: () => void
   isGenerating: boolean
 }
 
@@ -39,6 +40,7 @@ export default function SetupScreen({
   onGenerateProblem,
   onShowHistory,
   onShowMock,
+  onShowAchievements,
   isGenerating
 }: SetupScreenProps) {
   const [isLangOpen, setIsLangOpen] = useState(false)
@@ -86,8 +88,8 @@ export default function SetupScreen({
           >
             <Code2 className="text-white w-8 h-8" />
           </motion.div>
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">
-            Code Review <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">Lab</span>
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight leading-tight">
+            Code Review <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 inline-block">Lab</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-lg sm:text-xl">
             AIが生成するコードから欠陥を見つけ出し、<br className="hidden sm:block" />
@@ -375,11 +377,11 @@ export default function SetupScreen({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-5 pt-4">
+          <div className="flex flex-col gap-5 pt-4">
             <button
               type="submit"
               disabled={isGenerating}
-              className="primary-button-glow flex-1 gap-3 py-5 text-lg"
+              className="primary-button-glow w-full gap-3 py-5 text-lg"
               aria-label={isGenerating ? "問題を生成中..." : "レビューセッションを開始"}
             >
               {isGenerating ? (
@@ -395,16 +397,29 @@ export default function SetupScreen({
               )}
             </button>
 
-            <button
-              type="button"
-              onClick={onShowHistory}
-              disabled={isGenerating}
-              className="flex items-center justify-center gap-2 px-8 py-5 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-all border border-slate-200 dark:border-slate-800 backdrop-blur-sm"
-              aria-label="過去の履歴を表示"
-            >
-              <History className="w-5 h-5" aria-hidden="true" />
-              <span>History</span>
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={onShowHistory}
+                disabled={isGenerating}
+                className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-all border border-slate-200 dark:border-slate-800 backdrop-blur-sm"
+                aria-label="過去の履歴を表示"
+              >
+                <History className="w-5 h-5" aria-hidden="true" />
+                <span>History</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onShowAchievements}
+                disabled={isGenerating}
+                className="flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 text-amber-700 dark:text-amber-400 font-bold hover:from-amber-200 hover:to-yellow-200 dark:hover:from-amber-900/50 dark:hover:to-yellow-900/50 transition-all border border-amber-300 dark:border-amber-700 backdrop-blur-sm shadow-sm hover:shadow-md"
+                aria-label="実績と称号を表示"
+              >
+                <Award className="w-5 h-5" aria-hidden="true" />
+                <span>Achievements</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center justify-center pt-8 border-t border-slate-200/50 dark:border-slate-800/50">

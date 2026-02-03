@@ -68,6 +68,17 @@ export function getHistoryByLanguage(language: Language): HistoryEntry[] {
   return history[language] || []
 }
 
+export function getAllHistoryEntries(): HistoryEntry[] {
+  const history = getHistory()
+  const allEntries: HistoryEntry[] = []
+  Object.values(history).forEach(entries => {
+    if (entries) {
+      allEntries.push(...entries)
+    }
+  })
+  return allEntries
+}
+
 export function deleteFromHistory(language: string, id: number | string) {
   const history = getHistory()
 

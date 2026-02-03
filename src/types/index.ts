@@ -71,7 +71,7 @@ export type LanguageCounts = {
 export type Theme = 'light' | 'dark' | 'system'
 
 // ステージ
-export type Stage = 'setup' | 'problem' | 'result' | 'history' | 'mock' | 'mock-history'
+export type Stage = 'setup' | 'problem' | 'result' | 'history' | 'mock' | 'mock-history' | 'achievement' | 'mock-achievement'
 
 // トースト通知タイプ
 export type ToastType = 'error' | 'success' | 'info'
