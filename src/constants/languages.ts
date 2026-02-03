@@ -1,16 +1,16 @@
 export const LANGUAGES = [
-  'Kotlin',
-  'Swift',
+  'Python',
   'JavaScript',
   'TypeScript',
-  'Python',
   'Java',
   'C#',
+  'C++',
+  'PHP',
   'Go',
   'Rust',
-  'PHP',
-  'Ruby',
-  'C++'
+  'Kotlin',
+  'Swift',
+  'Ruby'
 ]
 
 // 言語名からhighlight.jsのクラス名へのマッピング

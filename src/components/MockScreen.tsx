@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { ChevronLeft, Beaker } from 'lucide-react'
 import { MOCK_PROBLEM, MOCK_EVALUATION } from '../constants/mockData'
 import { Badge, Title } from '../lib/badgeSystem'
+import { Medal, Target, Crosshair, Diamond, MessageCircle, BookOpen, Brain, Globe, Code2, FileCode, FileJson, Boxes, Hash, Cpu, Terminal, Sparkles, Wrench, Binary, Blocks } from 'lucide-react'
 
 // より充実したモックヒストリーデータを生成
 const generateMockHistory = () => {
@@ -131,7 +132,8 @@ const MOCK_BADGES: Badge[] = [
     description: '70点以上を獲得',
     category: 'score',
     rarity: 'common',
-    icon: '⭐',
+    icon: Medal,
+    color: 'text-amber-700',
     condition: () => true,
     unlocked: true,
     unlockedAt: new Date().toISOString()
@@ -142,7 +144,8 @@ const MOCK_BADGES: Badge[] = [
     description: '85点以上を獲得',
     category: 'score',
     rarity: 'rare',
-    icon: '⭐',
+    icon: Medal,
+    color: 'text-slate-400',
     condition: () => true,
     unlocked: true,
     unlockedAt: new Date().toISOString()
@@ -153,7 +156,8 @@ const MOCK_BADGES: Badge[] = [
     description: '95点以上を獲得',
     category: 'score',
     rarity: 'epic',
-    icon: '⭐',
+    icon: Medal,
+    color: 'text-yellow-400',
     condition: () => true,
     unlocked: true,
     unlockedAt: new Date().toISOString()
@@ -164,10 +168,203 @@ const MOCK_BADGES: Badge[] = [
     description: '10回満点を達成',
     category: 'perfect',
     rarity: 'legendary',
-    icon: '💎',
+    icon: Diamond,
+    color: 'text-cyan-400',
     condition: () => true,
     unlocked: true,
     unlockedAt: new Date().toISOString()
+  },
+  {
+    id: 'lang_3',
+    name: 'Polyglot',
+    description: '3つの言語を学習',
+    category: 'language',
+    rarity: 'common',
+    icon: MessageCircle,
+    color: 'text-green-500',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 5 * 86400000).toISOString()
+  },
+  {
+    id: 'lang_5',
+    name: 'Language Master',
+    description: '5つの言語を学習',
+    category: 'language',
+    rarity: 'rare',
+    icon: BookOpen,
+    color: 'text-blue-500',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 3 * 86400000).toISOString()
+  },
+  {
+    id: 'lang_8',
+    name: 'Multilingual Expert',
+    description: '8つの言語を学習',
+    category: 'language',
+    rarity: 'epic',
+    icon: Brain,
+    color: 'text-violet-500',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 1 * 86400000).toISOString()
+  },
+  {
+    id: 'master_python',
+    name: 'Python Master',
+    description: 'Pythonレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Code2,
+    color: 'text-blue-500',
+    languageIcon: 'Python',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 2 * 86400000).toISOString()
+  },
+  {
+    id: 'master_javascript',
+    name: 'JavaScript Master',
+    description: 'JavaScriptレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: FileCode,
+    color: 'text-yellow-500',
+    languageIcon: 'JavaScript',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 4 * 86400000).toISOString()
+  },
+  {
+    id: 'master_typescript',
+    name: 'TypeScript Master',
+    description: 'TypeScriptレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: FileJson,
+    color: 'text-blue-600',
+    languageIcon: 'TypeScript',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 6 * 86400000).toISOString()
+  },
+  {
+    id: 'master_java',
+    name: 'Java Master',
+    description: 'Javaレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Hash,
+    color: 'text-red-500',
+    languageIcon: 'Java',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 7 * 86400000).toISOString()
+  },
+  {
+    id: 'master_csharp',
+    name: 'C# Master',
+    description: 'C#レベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Hash,
+    color: 'text-purple-600',
+    languageIcon: 'C#',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 8 * 86400000).toISOString()
+  },
+  {
+    id: 'master_cpp',
+    name: 'C++ Master',
+    description: 'C++レベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Cpu,
+    color: 'text-blue-700',
+    languageIcon: 'C++',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 9 * 86400000).toISOString()
+  },
+  {
+    id: 'master_php',
+    name: 'PHP Master',
+    description: 'PHPレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Terminal,
+    color: 'text-indigo-500',
+    languageIcon: 'PHP',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 10 * 86400000).toISOString()
+  },
+  {
+    id: 'master_go',
+    name: 'Go Master',
+    description: 'Goレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Sparkles,
+    color: 'text-cyan-600',
+    languageIcon: 'Go',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 11 * 86400000).toISOString()
+  },
+  {
+    id: 'master_rust',
+    name: 'Rust Master',
+    description: 'Rustレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Wrench,
+    color: 'text-orange-600',
+    languageIcon: 'Rust',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 12 * 86400000).toISOString()
+  },
+  {
+    id: 'master_kotlin',
+    name: 'Kotlin Master',
+    description: 'Kotlinレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Binary,
+    color: 'text-purple-500',
+    languageIcon: 'Kotlin',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 13 * 86400000).toISOString()
+  },
+  {
+    id: 'master_swift',
+    name: 'Swift Master',
+    description: 'Swiftレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Blocks,
+    color: 'text-orange-500',
+    languageIcon: 'Swift',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 14 * 86400000).toISOString()
+  },
+  {
+    id: 'master_ruby',
+    name: 'Ruby Master',
+    description: 'Rubyレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Diamond,
+    color: 'text-red-600',
+    languageIcon: 'Ruby',
+    condition: () => true,
+    unlocked: true,
+    unlockedAt: new Date(Date.now() - 15 * 86400000).toISOString()
   }
 ]
 
@@ -340,7 +537,7 @@ export default function MockScreen({
                   aria-label={`${badge.name}バッジの通知をテスト`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl">{badge.icon}</span>
+                    <badge.icon className={`w-6 h-6 ${badge.color}`} />
                     <div>
                       <div className="font-semibold text-sm text-slate-900 dark:text-white">{badge.name}</div>
                       <div className="text-xs text-slate-500 dark:text-slate-400 capitalize">{badge.rarity}</div>

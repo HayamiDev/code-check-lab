@@ -2,6 +2,21 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Badge, Title, getRarityColorClass, getRarityLabel } from '../lib/badgeSystem'
 
+const LANGUAGE_ICONS: Record<string, string> = {
+  Kotlin: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kotlin/kotlin-original.svg',
+  Swift: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg',
+  JavaScript: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg',
+  TypeScript: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg',
+  Python: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg',
+  Java: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg',
+  'C#': 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg',
+  Go: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg',
+  Rust: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg',
+  PHP: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg',
+  Ruby: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/ruby/ruby-original.svg',
+  'C++': 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cplusplus/cplusplus-original.svg',
+}
+
 interface TrophyNotificationProps {
   badge?: Badge
   title?: Title
@@ -100,7 +115,15 @@ export default function TrophyNotification({ badge, title, onClose }: TrophyNoti
                     className="text-6xl"
                     aria-hidden="true"
                   >
-                    <badge.icon className={`w-16 h-16 drop-shadow-lg ${badge.color || 'text-white'}`} strokeWidth={1.5} />
+                    {badge.languageIcon && LANGUAGE_ICONS[badge.languageIcon] ? (
+                      <img
+                        src={LANGUAGE_ICONS[badge.languageIcon]}
+                        alt={badge.languageIcon}
+                        className="w-16 h-16 drop-shadow-lg object-contain"
+                      />
+                    ) : (
+                      <badge.icon className={`w-16 h-16 drop-shadow-lg ${badge.color || 'text-white'}`} strokeWidth={1.5} />
+                    )}
                   </motion.div>
                 )}
 

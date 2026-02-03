@@ -14,13 +14,20 @@ const SELECTED_TITLE_KEY = 'selected-title-id'
 
 // モックバッジデータ（進捗がわかるように一部だけ解除）
 const generateMockBadges = (): Badge[] => {
+  const languageBadgeIds = [
+    'lang_3', 'lang_5', 'lang_8', 'lang_12',
+    'master_python', 'master_javascript', 'master_typescript', 'master_java',
+    'master_csharp', 'master_cpp', 'master_php', 'master_go',
+    'master_rust', 'master_kotlin', 'master_swift', 'master_ruby'
+  ]
+
   return BADGE_DEFINITIONS.map((def, index) => {
-    // 最初の12個(約半分)を解除状態に
-    const unlocked = index < 12
+    // 言語カテゴリのバッジは全て解除、それ以外は最初の8個を解除
+    const unlocked = languageBadgeIds.includes(def.id) || index < 8
     return {
       ...def,
       unlocked,
-      unlockedAt: unlocked ? new Date(Date.now() - (12 - index) * 86400000).toISOString() : undefined
+      unlockedAt: unlocked ? new Date(Date.now() - (20 - index) * 86400000).toISOString() : undefined
     }
   })
 }

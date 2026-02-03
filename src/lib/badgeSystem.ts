@@ -6,7 +6,8 @@ import {
   Target, Crosshair, Diamond,
   MessageCircle, BookOpen, Brain, Globe,
   Pencil, Laptop, Glasses,
-  Mountain, Flag, Swords, Skull
+  Mountain, Flag, Swords, Skull,
+  Code2, Sparkles, Binary, FileCode, Terminal, Database, Boxes, Cpu, Hash, FileJson, Wrench, Blocks
 } from 'lucide-react'
 
 // ストリークデータの型定義（ストリーク機能は別ブランチだが、バッジシステムで使用）
@@ -35,6 +36,7 @@ export interface Badge {
   condition: (data: BadgeCheckData) => boolean
   unlocked: boolean
   unlockedAt?: string
+  languageIcon?: string // 言語マスターバッジ用の言語名
 }
 
 // バッジチェック用のデータ
@@ -45,6 +47,7 @@ export interface BadgeCheckData {
   maxScore: number
   perfectCount: number
   maxLevel: number
+  languageLevel10Count: Record<string, number> // 各言語のレベル10クリア回数
 }
 
 // 称号定義
@@ -290,6 +293,140 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt'>[] = [
     icon: Skull,
     color: 'text-purple-600',
     condition: (data) => data.maxLevel >= 10
+  },
+
+  // 言語マスターバッジ
+  {
+    id: 'master_python',
+    name: 'Python Master',
+    description: 'Pythonレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Code2,
+    color: 'text-blue-500',
+    languageIcon: 'Python',
+    condition: (data) => (data.languageLevel10Count['Python'] || 0) >= 10
+  },
+  {
+    id: 'master_javascript',
+    name: 'JavaScript Master',
+    description: 'JavaScriptレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: FileCode,
+    color: 'text-yellow-500',
+    languageIcon: 'JavaScript',
+    condition: (data) => (data.languageLevel10Count['JavaScript'] || 0) >= 10
+  },
+  {
+    id: 'master_typescript',
+    name: 'TypeScript Master',
+    description: 'TypeScriptレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: FileJson,
+    color: 'text-blue-600',
+    languageIcon: 'TypeScript',
+    condition: (data) => (data.languageLevel10Count['TypeScript'] || 0) >= 10
+  },
+  {
+    id: 'master_java',
+    name: 'Java Master',
+    description: 'Javaレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Boxes,
+    color: 'text-red-600',
+    languageIcon: 'Java',
+    condition: (data) => (data.languageLevel10Count['Java'] || 0) >= 10
+  },
+  {
+    id: 'master_csharp',
+    name: 'C# Master',
+    description: 'C#レベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Hash,
+    color: 'text-purple-600',
+    languageIcon: 'C#',
+    condition: (data) => (data.languageLevel10Count['C#'] || 0) >= 10
+  },
+  {
+    id: 'master_cpp',
+    name: 'C++ Master',
+    description: 'C++レベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Cpu,
+    color: 'text-blue-700',
+    languageIcon: 'C++',
+    condition: (data) => (data.languageLevel10Count['C++'] || 0) >= 10
+  },
+  {
+    id: 'master_php',
+    name: 'PHP Master',
+    description: 'PHPレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Terminal,
+    color: 'text-indigo-500',
+    languageIcon: 'PHP',
+    condition: (data) => (data.languageLevel10Count['PHP'] || 0) >= 10
+  },
+  {
+    id: 'master_go',
+    name: 'Go Master',
+    description: 'Goレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Sparkles,
+    color: 'text-cyan-500',
+    languageIcon: 'Go',
+    condition: (data) => (data.languageLevel10Count['Go'] || 0) >= 10
+  },
+  {
+    id: 'master_rust',
+    name: 'Rust Master',
+    description: 'Rustレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Wrench,
+    color: 'text-orange-600',
+    languageIcon: 'Rust',
+    condition: (data) => (data.languageLevel10Count['Rust'] || 0) >= 10
+  },
+  {
+    id: 'master_kotlin',
+    name: 'Kotlin Master',
+    description: 'Kotlinレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Binary,
+    color: 'text-purple-500',
+    languageIcon: 'Kotlin',
+    condition: (data) => (data.languageLevel10Count['Kotlin'] || 0) >= 10
+  },
+  {
+    id: 'master_swift',
+    name: 'Swift Master',
+    description: 'Swiftレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Blocks,
+    color: 'text-orange-500',
+    languageIcon: 'Swift',
+    condition: (data) => (data.languageLevel10Count['Swift'] || 0) >= 10
+  },
+  {
+    id: 'master_ruby',
+    name: 'Ruby Master',
+    description: 'Rubyレベル10を10回クリア',
+    category: 'language',
+    rarity: 'epic',
+    icon: Diamond,
+    color: 'text-red-500',
+    languageIcon: 'Ruby',
+    condition: (data) => (data.languageLevel10Count['Ruby'] || 0) >= 10
   }
 ]
 
@@ -404,6 +541,7 @@ export function generateBadgeCheckData(
   let maxScore = 0
   let perfectCount = 0
   let maxLevel = 0
+  const languageLevel10Count: Record<string, number> = {}
 
   allHistory.forEach(entry => {
     languagesUsed.add(entry.language)
@@ -411,6 +549,10 @@ export function generateBadgeCheckData(
     maxLevel = Math.max(maxLevel, entry.problem.level)
     if (entry.evaluationResult.totalScore === 100) {
       perfectCount++
+    }
+    // レベル10をクリアした回数をカウント
+    if (entry.problem.level === 10) {
+      languageLevel10Count[entry.language] = (languageLevel10Count[entry.language] || 0) + 1
     }
   })
 
@@ -420,7 +562,8 @@ export function generateBadgeCheckData(
     languagesUsed,
     maxScore,
     perfectCount,
-    maxLevel
+    maxLevel,
+    languageLevel10Count
   }
 }
 

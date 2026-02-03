@@ -28,7 +28,7 @@ export default function App() {
   const [theme, setTheme] = useTheme()
   const { toast, showToast, hideToast } = useToast()
   const [stage, setStage] = useState<Stage>('setup')
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>('Kotlin')
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>('Python')
   const [selectedLevel, setSelectedLevel] = useState<Level>(5)
   const [problem, setProblem] = useState<Problem | null>(null)
   const [userAnswer, setUserAnswer] = useState<string>('')
