@@ -158,3 +158,8 @@ Thumbs.db
 
 # Package Managers
 pnpm-debug.log*
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
